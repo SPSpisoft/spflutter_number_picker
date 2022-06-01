@@ -1,7 +1,7 @@
 name: spflutter_number_picker
 description: Flutter Number Picker
 version: 0.0.1
-homepage:
+homepage: https://github.com/SPSpisoft/spflutter_number_picker
 
 environment:
   sdk: ">=2.16.2 <3.0.0"

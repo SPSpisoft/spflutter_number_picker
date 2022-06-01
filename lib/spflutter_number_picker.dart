@@ -6,7 +6,7 @@ import 'package:flutter/physics.dart';
 class NumberPicker extends StatefulWidget {
   const NumberPicker(
       {Key? key,
-        this.initialValue,
+        this.initialValue = 0,
         this.onChanged,
         this.onOutOfConstraints,
         this.enableOnOutOfConstraintsAnimation = true,
@@ -17,6 +17,7 @@ class NumberPicker extends StatefulWidget {
         this.minValue = 0,
         this.checkValue = 0,
         this.expanse = 380,
+        this.intCheck = true,
         this.durationAutoPick = 600,
         this.theme})
       : super(key: key);
@@ -25,12 +26,13 @@ class NumberPicker extends StatefulWidget {
   final Axis direction;
 
   /// the initial value of the stepper
-  final int? initialValue;
-  final int interval;
-  final int checkValue;
+  final double initialValue;
+  final double interval;
+  final double checkValue;
+  final bool intCheck;
 
   /// called whenever the value of the stepper changed
-  final ValueChanged<int>? onChanged;
+  final ValueChanged<double>? onChanged;
 
   /// called when user try to change value to a value that is superior as
   /// [maxValue] or inferior as [minValue]
@@ -50,11 +52,11 @@ class NumberPicker extends StatefulWidget {
 
   /// minimum on the value it can be
   /// defaults is -100
-  final int minValue;
+  final double minValue;
 
   /// maximum of the value it can reach
   /// defaults is 100
-  final int maxValue;
+  final double maxValue;
 
   final double expanse;
   final int durationAutoPick;
@@ -94,7 +96,7 @@ class _NumberPickerState extends State<NumberPicker>
       : _animation = Tween<Offset>(
       begin: const Offset(0.0, 0.0), end: const Offset(0.0, 1.5))
       .animate(_controller);
-  late int _value = widget.initialValue ?? 0;
+  late double _value = widget.initialValue;
   late double _startAnimationPosX;
   late double _startAnimationPosY;
 
@@ -116,8 +118,20 @@ class _NumberPickerState extends State<NumberPicker>
 
   late NumberSelectionTheme _theme;
 
+  bool isInt = false;
+
   @override
   void initState() {
+    if(widget.intCheck){
+      if(isInteger(widget.initialValue) &&
+          isInteger(widget.minValue) &&
+          isInteger(widget.interval)
+      ){
+        isInt = true;
+      }else{
+        isInt = false;
+      }
+    }
     super.initState();
   }
 
@@ -257,8 +271,8 @@ class _NumberPickerState extends State<NumberPicker>
                             // ));
                           },
                           child: Text(
-                            '$_value',
-                            key: ValueKey<int>(_value),
+                            isInt ? _value.round().toString() : '$_value',
+                            key: ValueKey<double>(_value),
                             style: TextStyle(
                                 color: _theme.numberColor, fontSize: 56.0),
                           ),
@@ -341,13 +355,15 @@ class _NumberPickerState extends State<NumberPicker>
     bool valueOutOfConstraints = false;
     while (_buttonPressed) {
       // do your thing
-      if (adding && _value + 1 <= widget.maxValue) {
-        setState(() => _value = _value + widget.interval);
-      } else if (!adding && _value - 1 >= widget.minValue) {
-        setState(() => _value = _value - widget.interval);
-      } else {
-        _buttonPressed = false;
-        valueOutOfConstraints = true;
+      if(_value != widget.initialValue) {
+        if (adding && _value + 1 <= widget.maxValue) {
+          setState(() => _value = _value + widget.interval);
+        } else if (!adding && _value - 1 >= widget.minValue) {
+          setState(() => _value = _value - widget.interval);
+        } else {
+          _buttonPressed = false;
+          valueOutOfConstraints = true;
+        }
       }
 
       if (widget.withSpring) {
@@ -606,7 +622,7 @@ class _NumberPickerState extends State<NumberPicker>
                           if (int.parse(val) > widget.maxValue) {
                             _value = widget.maxValue;
                           } else {
-                            _value = int.parse(val);
+                            _value = double.parse(val);
                           }
                           setState(() {});
                         },
@@ -627,7 +643,7 @@ class _NumberPickerState extends State<NumberPicker>
                           if (value!.isEmpty) {
                             return '  Enter a valid value';
                           } else {
-                            if (int.parse(value) > widget.maxValue) {
+                            if (double.parse(value) > widget.maxValue) {
                               return '   out of range (${widget.maxValue.toString()} )';
                             }
                           }
@@ -659,3 +675,5 @@ class NumberSelectionTheme {
         this.outOfConstraintsColor});
 }
 
+bool isInteger(double value) =>
+    value is int || value == value.roundToDouble();
