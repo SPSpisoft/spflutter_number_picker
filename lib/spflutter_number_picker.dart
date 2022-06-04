@@ -1,25 +1,28 @@
 library spflutter_number_picker;
 
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
+import 'package:flutter/services.dart';
 
 class NumberPicker extends StatefulWidget {
   const NumberPicker(
       {Key? key,
-        this.initialValue = 0,
-        this.onChanged,
-        this.onOutOfConstraints,
-        this.enableOnOutOfConstraintsAnimation = true,
-        this.direction = Axis.horizontal,
-        this.withSpring = true,
-        this.interval = 1,
-        this.maxValue = 100,
-        this.minValue = 0,
-        this.checkValue = 0,
-        this.expanse = 380,
-        this.intCheck = true,
-        this.durationAutoPick = 600,
-        this.theme})
+      this.initialValue = 0,
+      this.onChanged,
+      this.onOutOfConstraints,
+      this.enableOnOutOfConstraintsAnimation = true,
+      this.direction = Axis.horizontal,
+      this.withSpring = true,
+      this.interval = 1.0,
+      this.maxValue = 100,
+      this.minValue = 0,
+      this.checkValue = 0,
+      this.expanse = 380,
+      this.intCheck = true,
+      this.durationAutoPick = 600,
+      this.theme})
       : super(key: key);
 
   /// the orientation of the stepper its horizontal or vertical.
@@ -84,54 +87,59 @@ class _NumberPickerState extends State<NumberPicker>
   final TextEditingController titleController = TextEditingController();
   final GlobalKey<FormState> _keyDialogForm = GlobalKey<FormState>();
 
-  bool _buttonPressed = false;
+  bool _buttonTouch = false;
   bool _loopActive = false;
   late bool _isHorizontal = widget.direction == Axis.horizontal;
   late final AnimationController _controller = AnimationController(
       vsync: this, lowerBound: -0.5, upperBound: 0.5, value: 0);
   late Animation _animation = _isHorizontal
       ? _animation = Tween<Offset>(
-      begin: const Offset(0.0, 0.0), end: const Offset(1.5, 0.0))
-      .animate(_controller)
+              begin: const Offset(0.0, 0.0), end: const Offset(1.5, 0.0))
+          .animate(_controller)
       : _animation = Tween<Offset>(
-      begin: const Offset(0.0, 0.0), end: const Offset(0.0, 1.5))
-      .animate(_controller);
+              begin: const Offset(0.0, 0.0), end: const Offset(0.0, 1.5))
+          .animate(_controller);
   late double _value = widget.initialValue;
-  late double _startAnimationPosX;
-  late double _startAnimationPosY;
+  late double _startAnimationPosX = -999;
+  late double _startAnimationPosY = -999;
 
   late double _startAnimationOutOfConstraintsPosX;
   late double _startAnimationOutOfConstraintsPosY;
 
   late final AnimationController _backgroundColorController =
-  AnimationController(
-      vsync: this, duration: const Duration(milliseconds: 350), value: 0)
-    ..addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        _backgroundColorController.animateTo(0, curve: Curves.easeIn);
-      }
-    });
+      AnimationController(
+          vsync: this, duration: const Duration(milliseconds: 350), value: 0)
+        ..addStatusListener((status) {
+          if (status == AnimationStatus.completed) {
+            _backgroundColorController.animateTo(0, curve: Curves.easeIn);
+          }
+        });
   final ColorTween _backgroundColorTween = ColorTween();
   late final Animation<Color?> _backgroundColor =
-  _backgroundColorController.drive(
-      _backgroundColorTween.chain(CurveTween(curve: Curves.fastOutSlowIn)));
+      _backgroundColorController.drive(
+          _backgroundColorTween.chain(CurveTween(curve: Curves.fastOutSlowIn)));
 
   late NumberSelectionTheme _theme;
 
   bool isInt = false;
 
+  bool _buttonTouchAdd = false;
+
+  int cntDP = 0;
+
   @override
   void initState() {
-    if(widget.intCheck){
-      if(isInteger(widget.initialValue) &&
+    if (widget.intCheck) {
+      if (isInteger(widget.initialValue) &&
           isInteger(widget.minValue) &&
-          isInteger(widget.interval)
-      ){
+          isInteger(widget.interval)) {
         isInt = true;
-      }else{
+      } else {
         isInt = false;
       }
     }
+    cntDP = max(getDecimalPlaces(widget.interval), getDecimalPlaces(widget.initialValue));
+    // _onPanStart;
     super.initState();
   }
 
@@ -173,7 +181,7 @@ class _NumberPickerState extends State<NumberPicker>
           backgroundColor: widget.theme!.backgroundColor ??
               Theme.of(context).primaryColor.withOpacity(0.7),
           outOfConstraintsColor:
-          widget.theme!.outOfConstraintsColor ?? Colors.red);
+              widget.theme!.outOfConstraintsColor ?? Colors.red);
     } else {
       _theme = NumberSelectionTheme(
         draggableCircleColor: Theme.of(context).canvasColor,
@@ -210,15 +218,15 @@ class _NumberPickerState extends State<NumberPicker>
                 top: _isHorizontal ? 0 : null,
                 child: Listener(
                   onPointerDown: (details) {
-                    _buttonPressed = true;
+                    _buttonTouch = true;
                     _increaseCounterWhilePressed(adding: false);
                   },
                   onPointerUp: (details) {
-                    _buttonPressed = false;
+                    _buttonTouch = false;
                   },
                   child: IconButton(
                     icon:
-                    Icon(Icons.remove, size: 40, color: _theme.iconsColor),
+                        Icon(Icons.remove, size: 40, color: _theme.iconsColor),
                     onPressed: () =>
                         _changeValue(adding: false, fromButtons: true),
                   ),
@@ -231,17 +239,18 @@ class _NumberPickerState extends State<NumberPicker>
                 bottom: _isHorizontal ? 0 : null,
                 child: Listener(
                   onPointerDown: (details) {
-                    _buttonPressed = true;
+                    _buttonTouch = true;
                     _increaseCounterWhilePressed(adding: true);
                   },
                   onPointerUp: (details) {
-                    _buttonPressed = false;
+                    _buttonTouch = false;
+                    // _buttonTouchAdd = false;
                   },
                   child: IconButton(
-                    icon: Icon(Icons.add, size: 40, color: _theme.iconsColor),
-                    onPressed: () =>
-                        _changeValue(adding: true, fromButtons: true),
-                  ),
+                      icon: Icon(Icons.add, size: 40, color: _theme.iconsColor),
+                      onPressed: () {
+                        _changeValue(adding: true, fromButtons: true);
+                      }),
                 ),
               ),
               GestureDetector(
@@ -271,10 +280,12 @@ class _NumberPickerState extends State<NumberPicker>
                             // ));
                           },
                           child: Text(
-                            isInt ? _value.round().toString() : '$_value',
+                            isInt
+                                ? _value.round().toString()
+                                : _value.toStringAsFixed(cntDP),
                             key: ValueKey<double>(_value),
                             style: TextStyle(
-                                color: _theme.numberColor, fontSize: 56.0),
+                                color: _theme.numberColor, fontSize: 56.0-(cntDP*10)),
                           ),
                         ),
                       ),
@@ -349,34 +360,44 @@ class _NumberPickerState extends State<NumberPicker>
   }
 
   void _increaseCounterWhilePressed({required bool adding}) async {
+    if (_startAnimationPosY == -999 || _startAnimationPosX == -999) {
+      _onPanStart;
+    }
+    _buttonTouchAdd = true;
     if (_loopActive) return;
     _loopActive = true;
 
     bool valueOutOfConstraints = false;
-    while (_buttonPressed) {
+    while (_buttonTouch) {
+      print("SPS 2");
+      print(_value);
+      print(widget.interval);
+
       // do your thing
-      if(_value != widget.initialValue) {
+      // if (_value != widget.initialValue)
+      {
         if (adding && _value + 1 <= widget.maxValue) {
           setState(() => _value = _value + widget.interval);
         } else if (!adding && _value - 1 >= widget.minValue) {
           setState(() => _value = _value - widget.interval);
         } else {
-          _buttonPressed = false;
+          _buttonTouch = false;
           valueOutOfConstraints = true;
         }
       }
 
+      print("SPS 2.1");
       if (widget.withSpring) {
         final SpringDescription _kDefaultSpring =
-        SpringDescription.withDampingRatio(
+            SpringDescription.withDampingRatio(
           mass:
-          valueOutOfConstraints && widget.enableOnOutOfConstraintsAnimation
-              ? 0.4
-              : 0.9,
+              valueOutOfConstraints && widget.enableOnOutOfConstraintsAnimation
+                  ? 0.4
+                  : 0.9,
           stiffness:
-          valueOutOfConstraints && widget.enableOnOutOfConstraintsAnimation
-              ? 1000
-              : 250.0,
+              valueOutOfConstraints && widget.enableOnOutOfConstraintsAnimation
+                  ? 1000
+                  : 250.0,
           ratio: 0.6,
         );
         if (_isHorizontal) {
@@ -401,6 +422,7 @@ class _NumberPickerState extends State<NumberPicker>
             curve: Curves.bounceOut,
             duration: const Duration(milliseconds: 500));
       }
+      print("SPS 2.2");
 
       if (valueOutOfConstraints) {
         if (widget.onOutOfConstraints != null) widget.onOutOfConstraints!();
@@ -410,133 +432,148 @@ class _NumberPickerState extends State<NumberPicker>
       } else if (widget.onChanged != null) {
         widget.onChanged!(_value);
       }
+      print("SPS 2.3");
+      // _buttonTouch = false;
       // wait a bit
       await Future.delayed(Duration(milliseconds: widget.durationAutoPick));
     }
+    print("SPS 3");
+    _buttonTouchAdd = false;
+    _buttonTouch = false;
     _loopActive = false;
   }
 
   void _changeValue(
       {required bool adding,
-        bool fromButtons = false,
-        bool tenfold = false}) async {
+      bool fromButtons = false,
+      bool tenfold = false}) async {
+    // if(_startAnimationPosY.isNaN) {
+    //   _onPanStart;
+    // }
+
+    // if (!_buttonTouch)
+
     if (fromButtons) {
       _startAnimationPosX = _startAnimationPosY = adding ? 0.5 : -0.5;
       _startAnimationOutOfConstraintsPosX =
           _startAnimationOutOfConstraintsPosY = adding ? 0.25 : 0.25;
     }
+    if (!_buttonTouchAdd) {
+      print("SPS 1 >> changeValue");
+      bool valueOutOfConstraints = false;
+      bool valuetenfold = false;
 
-    bool valueOutOfConstraints = false;
-    bool valuetenfold = false;
-
-    if (tenfold) {
-      if (adding) {
-        if (_value + (widget.interval * 10) <= widget.maxValue) {
-          setState(() => _value = _value + (widget.interval * 10));
-          valuetenfold = true;
+      if (tenfold) {
+        if (adding) {
+          if (_value + (widget.interval * 10) <= widget.maxValue) {
+            setState(() => _value = _value + (widget.interval * 10));
+            valuetenfold = true;
+          } else {
+            setState(() => _value = widget.maxValue);
+            valueOutOfConstraints = true;
+          }
         } else {
-          setState(() => _value = widget.maxValue);
-          valueOutOfConstraints = true;
+          if (_value - (widget.interval * 10) >= widget.minValue) {
+            setState(() => _value = _value - (widget.interval * 10));
+            valuetenfold = true;
+          } else {
+            setState(() => _value = widget.minValue);
+            valueOutOfConstraints = true;
+          }
         }
       } else {
-        if (_value - (widget.interval * 10) >= widget.minValue) {
-          setState(() => _value = _value - (widget.interval * 10));
-          valuetenfold = true;
+        if (adding && _value + 1 <= widget.maxValue) {
+          setState(() => _value = _value + widget.interval);
+        } else if (!adding && _value - 1 >= widget.minValue) {
+          setState(() => _value = _value - widget.interval);
         } else {
-          setState(() => _value = widget.minValue);
           valueOutOfConstraints = true;
         }
       }
-    } else {
-      if (adding && _value + 1 <= widget.maxValue) {
-        setState(() => _value = _value + widget.interval);
-      } else if (!adding && _value - 1 >= widget.minValue) {
-        setState(() => _value = _value - widget.interval);
+
+      if (widget.withSpring) {
+        final SpringDescription _kDefaultSpring =
+            SpringDescription.withDampingRatio(
+          mass:
+              valueOutOfConstraints && widget.enableOnOutOfConstraintsAnimation
+                  ? 0.4
+                  : 0.9,
+          stiffness:
+              valueOutOfConstraints && widget.enableOnOutOfConstraintsAnimation
+                  ? 1000
+                  : 250.0,
+          ratio: 0.6,
+        );
+
+        if (_isHorizontal) {
+          _controller.animateWith(SpringSimulation(
+              _kDefaultSpring,
+              valueOutOfConstraints && widget.enableOnOutOfConstraintsAnimation
+                  ? _startAnimationOutOfConstraintsPosX
+                  : _startAnimationPosX,
+              0.0,
+              0.0));
+        } else {
+          _controller.animateWith(SpringSimulation(
+              _kDefaultSpring,
+              valueOutOfConstraints && widget.enableOnOutOfConstraintsAnimation
+                  ? _startAnimationOutOfConstraintsPosY
+                  : _startAnimationPosY,
+              0.0,
+              0.0));
+        }
+
+        final SpringDescription _kDefaultSpringTen =
+            SpringDescription.withDampingRatio(
+          mass: valuetenfold && widget.enableOnOutOfConstraintsAnimation
+              ? 0.4
+              : 0.9,
+          stiffness: valuetenfold && widget.enableOnOutOfConstraintsAnimation
+              ? 1000
+              : 250.0,
+          ratio: 0.6,
+        );
+
+        if (_isHorizontal) {
+          _controller.animateWith(SpringSimulation(
+              _kDefaultSpringTen,
+              valuetenfold && widget.enableOnOutOfConstraintsAnimation
+                  ? _startAnimationOutOfConstraintsPosX
+                  : _startAnimationPosX,
+              0.0,
+              0.0));
+        } else {
+          _controller.animateWith(SpringSimulation(
+              _kDefaultSpringTen,
+              valuetenfold && widget.enableOnOutOfConstraintsAnimation
+                  ? _startAnimationOutOfConstraintsPosY
+                  : _startAnimationPosY,
+              0.0,
+              0.0));
+        }
       } else {
-        valueOutOfConstraints = true;
-      }
-    }
-
-    if (widget.withSpring) {
-      final SpringDescription _kDefaultSpring =
-      SpringDescription.withDampingRatio(
-        mass: valueOutOfConstraints && widget.enableOnOutOfConstraintsAnimation
-            ? 0.4
-            : 0.9,
-        stiffness:
-        valueOutOfConstraints && widget.enableOnOutOfConstraintsAnimation
-            ? 1000
-            : 250.0,
-        ratio: 0.6,
-      );
-
-      if (_isHorizontal) {
-        _controller.animateWith(SpringSimulation(
-            _kDefaultSpring,
-            valueOutOfConstraints && widget.enableOnOutOfConstraintsAnimation
-                ? _startAnimationOutOfConstraintsPosX
-                : _startAnimationPosX,
-            0.0,
-            0.0));
-      } else {
-        _controller.animateWith(SpringSimulation(
-            _kDefaultSpring,
-            valueOutOfConstraints && widget.enableOnOutOfConstraintsAnimation
-                ? _startAnimationOutOfConstraintsPosY
-                : _startAnimationPosY,
-            0.0,
-            0.0));
+        _controller.animateTo(0.0,
+            curve: Curves.bounceOut,
+            duration: const Duration(milliseconds: 500));
       }
 
-      final SpringDescription _kDefaultSpringTen =
-      SpringDescription.withDampingRatio(
-        mass: valuetenfold && widget.enableOnOutOfConstraintsAnimation
-            ? 0.4
-            : 0.9,
-        stiffness: valuetenfold && widget.enableOnOutOfConstraintsAnimation
-            ? 1000
-            : 250.0,
-        ratio: 0.6,
-      );
-
-      if (_isHorizontal) {
-        _controller.animateWith(SpringSimulation(
-            _kDefaultSpringTen,
-            valuetenfold && widget.enableOnOutOfConstraintsAnimation
-                ? _startAnimationOutOfConstraintsPosX
-                : _startAnimationPosX,
-            0.0,
-            0.0));
-      } else {
-        _controller.animateWith(SpringSimulation(
-            _kDefaultSpringTen,
-            valuetenfold && widget.enableOnOutOfConstraintsAnimation
-                ? _startAnimationOutOfConstraintsPosY
-                : _startAnimationPosY,
-            0.0,
-            0.0));
+      if (valuetenfold) {
+        if (widget.onOutOfConstraints != null) widget.onOutOfConstraints!();
+        if (widget.enableOnOutOfConstraintsAnimation) {
+          _backgroundColorController.forward(from: -10);
+        }
+      } else if (widget.onChanged != null) {
+        widget.onChanged!(_value);
       }
-    } else {
-      _controller.animateTo(0.0,
-          curve: Curves.bounceOut, duration: const Duration(milliseconds: 500));
-    }
 
-    if (valuetenfold) {
-      if (widget.onOutOfConstraints != null) widget.onOutOfConstraints!();
-      if (widget.enableOnOutOfConstraintsAnimation) {
-        _backgroundColorController.forward(from: -10);
+      if (valueOutOfConstraints) {
+        if (widget.onOutOfConstraints != null) widget.onOutOfConstraints!();
+        if (widget.enableOnOutOfConstraintsAnimation) {
+          _backgroundColorController.forward();
+        }
+      } else if (widget.onChanged != null) {
+        widget.onChanged!(_value);
       }
-    } else if (widget.onChanged != null) {
-      widget.onChanged!(_value);
-    }
-
-    if (valueOutOfConstraints) {
-      if (widget.onOutOfConstraints != null) widget.onOutOfConstraints!();
-      if (widget.enableOnOutOfConstraintsAnimation) {
-        _backgroundColorController.forward();
-      }
-    } else if (widget.onChanged != null) {
-      widget.onChanged!(_value);
     }
   }
 
@@ -602,7 +639,7 @@ class _NumberPickerState extends State<NumberPicker>
                     alignment: Alignment.center,
                     child: Padding(
                       padding:
-                      const EdgeInsets.only(left: 70, right: 70, bottom: 5),
+                          const EdgeInsets.only(left: 70, right: 70, bottom: 5),
                       child: TextFormField(
                         key: _keyDialogForm,
                         style: const TextStyle(
@@ -611,8 +648,14 @@ class _NumberPickerState extends State<NumberPicker>
                           counterText: "",
                         ),
                         autofocus: true,
-                        keyboardType: TextInputType.number,
-                        initialValue: _value.toString(),
+                        keyboardType: isInt
+                            ? TextInputType.number
+                            : const TextInputType.numberWithOptions(
+                                decimal: true),
+                        // inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                        initialValue:
+                            isInt ? _value.round().toString() : '$_value',
+                        // _value.toString(),
                         // decoration: const InputDecoration(
                         //   icon: Icon(Icons.ac_unit),
                         // ),
@@ -669,11 +712,17 @@ class NumberSelectionTheme {
 
   NumberSelectionTheme(
       {this.draggableCircleColor,
-        this.numberColor,
-        this.iconsColor,
-        this.backgroundColor,
-        this.outOfConstraintsColor});
+      this.numberColor,
+      this.iconsColor,
+      this.backgroundColor,
+      this.outOfConstraintsColor});
 }
 
-bool isInteger(double value) =>
-    value is int || value == value.roundToDouble();
+bool isInteger(double value) => value is int || value == value.roundToDouble();
+
+int getDecimalPlaces(var number) {
+  int decimals = 0;
+  List<String> substr = number.toString().split('.');
+  if (substr.isNotEmpty) decimals = int.tryParse(substr[1])!;
+  return decimals;
+}
