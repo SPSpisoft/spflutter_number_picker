@@ -22,6 +22,8 @@ TODO: Forked & Customized https://github.com/AliRn76/number_selection .. Tank's 
 - support double values
 - Ability to enter values manually (by keyboard -> LongTouch Text)
 - Change interval value
+- add 10X interval 
+- auto text font size change with text length
  
 ## Usage
 
