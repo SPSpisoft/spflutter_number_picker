@@ -18,15 +18,12 @@ TODO: Forked & Customized https://github.com/AliRn76/number_selection .. Tank's 
 ![demo](https://user-images.githubusercontent.com/11540724/172043134-3bfab3dd-defd-4921-9da1-c58c38f28193.gif)
 
 
-## Getting started
-
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
-
+## Customization
+- support double values
+- Ability to enter values manually (by keyboard -> LongTouch Text)
+- Change interval value
+ 
 ## Usage
-
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder. 
 
 ```dart
 const like = 'sample';
@@ -34,10 +31,3 @@ const like = 'sample';
 # Preview
 ![Capture+_2022-06-05-13-03-31](https://user-images.githubusercontent.com/11540724/172042837-15947bd8-b0a9-4055-937b-7c1078261dbe.png)
 
-
-
-## Additional information
-
-TODO: Tell users more about the package: where to find more information, how to 
-contribute to the package, how to file issues, what response they can expect 
-from the package authors, and more.
