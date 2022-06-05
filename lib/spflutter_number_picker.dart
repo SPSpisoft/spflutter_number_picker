@@ -18,7 +18,6 @@ class NumberPicker extends StatefulWidget {
       this.interval = 1.0,
       this.maxValue = 100,
       this.minValue = 0,
-      this.checkValue = 0,
       this.expanse = 380,
       this.intCheck = true,
       this.durationAutoPick = 600,
@@ -31,7 +30,6 @@ class NumberPicker extends StatefulWidget {
   /// the initial value of the stepper
   final double initialValue;
   final double interval;
-  final double checkValue;
   final bool intCheck;
 
   /// called whenever the value of the stepper changed
