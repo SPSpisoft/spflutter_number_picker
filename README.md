@@ -44,12 +44,9 @@ const like = 'sample';
 <tbody>
   <tr>
     <td align="left">Modal Type</td>
-    <td align="center">
-      <image alt="Single Choice Modal" src="https://raw.githubusercontent.com/davigmacode/flutter_smart_select/master/demo/screens/single-modal.gif"/>
-    </td>
-    <td align="center">
-      <image alt="Multiple Choice Modal" src="https://raw.githubusercontent.com/davigmacode/flutter_smart_select/master/demo/screens/multiple-modal.gif"/>
-    </td>
+![Capture+_2022-06-05-13-03-31](https://user-images.githubusercontent.com/11540724/172042690-022d4197-49d6-4cf5-8bd0-f762a330a060.png)
+
+    
   </tr>
 </tbody>
 </table>
