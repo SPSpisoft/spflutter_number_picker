@@ -31,6 +31,28 @@ to `/example` folder.
 ```dart
 const like = 'sample';
 ```
+# Preview
+
+<table>
+<thead>
+  <tr>
+    <th align="left"></th>
+    <th align="center">Single Choice</th>
+    <th align="center">Multiple Choice</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td align="left">Modal Type</td>
+    <td align="center">
+      <image alt="Single Choice Modal" src="https://raw.githubusercontent.com/davigmacode/flutter_smart_select/master/demo/screens/single-modal.gif"/>
+    </td>
+    <td align="center">
+      <image alt="Multiple Choice Modal" src="https://raw.githubusercontent.com/davigmacode/flutter_smart_select/master/demo/screens/multiple-modal.gif"/>
+    </td>
+  </tr>
+</tbody>
+</table>
 
 ## Additional information
 
