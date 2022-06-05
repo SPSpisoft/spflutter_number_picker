@@ -285,7 +285,7 @@ class _NumberPickerState extends State<NumberPicker>
                                 : _value.toStringAsFixed(cntDP),
                             key: ValueKey<double>(_value),
                             style: TextStyle(
-                                color: _theme.numberColor, fontSize: 56.0-(cntDP*10)),
+                                color: _theme.numberColor, fontSize: 70.0-((_value.toStringAsFixed(cntDP).length-1)*7)),
                           ),
                         ),
                       ),
@@ -720,9 +720,9 @@ class NumberSelectionTheme {
 
 bool isInteger(double value) => value is int || value == value.roundToDouble();
 
-int getDecimalPlaces(var number) {
+int getDecimalPlaces(double number) {
   int decimals = 0;
   List<String> substr = number.toString().split('.');
-  if (substr.isNotEmpty) decimals = int.tryParse(substr[1])!;
+  if (number != number.round() && substr.isNotEmpty ) decimals = substr[1].length;
   return decimals;
 }
