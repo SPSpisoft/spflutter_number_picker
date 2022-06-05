@@ -34,7 +34,6 @@ const like = 'sample';
 # Preview
 ![Capture+_2022-06-05-13-03-31](https://user-images.githubusercontent.com/11540724/172042837-15947bd8-b0a9-4055-937b-7c1078261dbe.png)
 
-      <image alt="Single Choice Modal" src="https://user-images.githubusercontent.com/11540724/172042690-022d4197-49d6-4cf5-8bd0-f762a330a060.png"/>
 
 
 ## Additional information
