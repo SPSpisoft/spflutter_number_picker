@@ -43,8 +43,12 @@ const like = 'sample';
 </thead>
 <tbody>
   <tr>
-    <td align="left">Modal Type</td>
+<!--     <td align="left">Modal Type</td>
 ![Capture+_2022-06-05-13-03-31](https://user-images.githubusercontent.com/11540724/172042690-022d4197-49d6-4cf5-8bd0-f762a330a060.png)
+    </td> -->
+  
+    <td align="center">
+      <image alt="Single Choice Modal" src="https://user-images.githubusercontent.com/11540724/172042690-022d4197-49d6-4cf5-8bd0-f762a330a060.png"/>
     </td>
 
     
