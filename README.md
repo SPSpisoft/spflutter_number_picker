@@ -11,12 +11,12 @@ and the Flutter guide for
 [developing packages and plugins](https://flutter.dev/developing-packages). 
 -->
 
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+TODO: Forked & Customized https://github.com/AliRn76/number_selection .. Tank's AliRn76
 
 ## Features
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+![demo](https://user-images.githubusercontent.com/11540724/172043134-3bfab3dd-defd-4921-9da1-c58c38f28193.gif)
+
 
 ## Getting started
 
