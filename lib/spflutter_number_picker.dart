@@ -11,6 +11,7 @@ class NumberPicker extends StatefulWidget {
       {Key? key,
       this.initialValue = 0,
       this.onChanged,
+      this.callBack,
       this.onOutOfConstraints,
       this.enableOnOutOfConstraintsAnimation = true,
       this.direction = Axis.horizontal,
@@ -31,6 +32,7 @@ class NumberPicker extends StatefulWidget {
   final double initialValue;
   final double interval;
   final bool intCheck;
+  final Future<bool> Function(double newValue)? callBack;
 
   /// called whenever the value of the stepper changed
   final ValueChanged<double>? onChanged;
@@ -112,6 +114,7 @@ class _NumberPickerState extends State<NumberPicker>
             _backgroundColorController.animateTo(0, curve: Curves.easeIn);
           }
         });
+
   final ColorTween _backgroundColorTween = ColorTween();
   late final Animation<Color?> _backgroundColor =
       _backgroundColorController.drive(
@@ -125,6 +128,8 @@ class _NumberPickerState extends State<NumberPicker>
 
   int cntDP = 0;
 
+  bool visibleProgress = false;
+
   @override
   void initState() {
     if (widget.intCheck) {
@@ -136,7 +141,8 @@ class _NumberPickerState extends State<NumberPicker>
         isInt = false;
       }
     }
-    cntDP = max(getDecimalPlaces(widget.interval), getDecimalPlaces(widget.initialValue));
+    cntDP = max(getDecimalPlaces(widget.interval),
+        getDecimalPlaces(widget.initialValue));
     // _onPanStart;
     super.initState();
   }
@@ -257,37 +263,62 @@ class _NumberPickerState extends State<NumberPicker>
                 onHorizontalDragEnd: _onPanEnd,
                 child: SlideTransition(
                   position: _animation as Animation<Offset>,
-                  child: Material(
-                    color: _theme.draggableCircleColor,
-                    shape: const CircleBorder(),
-                    elevation: 5.0,
-                    child: Center(
-                      child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 400),
-                        transitionBuilder:
-                            (Widget child, Animation<double> animation) {
-                          return ScaleTransition(
-                              child: child, scale: animation);
-                        },
-                        child: InkWell(
-                          onLongPress: () {
-                            showTitleDialog();
-                            // Navigator.push(context, new MaterialPageRoute(
-                            //   builder: (BuildContext context) => _myDialog,
-                            //   fullscreenDialog: true,
-                            // ));
-                          },
-                          child: Text(
-                            isInt
-                                ? _value.round().toString()
-                                : _value.toStringAsFixed(cntDP),
-                            key: ValueKey<double>(_value),
-                            style: TextStyle(
-                                color: _theme.numberColor, fontSize: 70.0-((_value.toStringAsFixed(cntDP).length-1)*7)),
+                  child: Stack(
+                    children: [
+                      Material(
+                        color: _theme.draggableCircleColor,
+                        shape: const CircleBorder(),
+                        elevation: 5.0,
+                        child: Center(
+                          child: Stack(
+                            children: [
+                              AnimatedSwitcher(
+                                duration: const Duration(milliseconds: 400),
+                                transitionBuilder: (Widget child,
+                                    Animation<double> animation) {
+                                  return ScaleTransition(
+                                      child: child, scale: animation);
+                                },
+                                child: InkWell(
+                                  onLongPress: () {
+                                    showTitleDialog();
+                                    // Navigator.push(context, new MaterialPageRoute(
+                                    //   builder: (BuildContext context) => _myDialog,
+                                    //   fullscreenDialog: true,
+                                    // ));
+                                  },
+                                  child: Text(
+                                    isInt
+                                        ? _value.round().toString()
+                                        : _value.toStringAsFixed(cntDP),
+                                    key: ValueKey<double>(_value),
+                                    style: TextStyle(
+                                        color: _theme.numberColor,
+                                        fontSize: 70.0 -
+                                            ((_value
+                                                        .toStringAsFixed(cntDP)
+                                                        .length -
+                                                    1) *
+                                                7)),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
-                    ),
+                      Center(
+                          child: Padding(
+                        padding: const EdgeInsets.only(bottom: 20),
+                        child: SizedBox.expand(
+                            child: Visibility(
+                                visible: visibleProgress,
+                                child: const CircularProgressIndicator(
+                                  color: Colors.amber,
+                                  strokeWidth: 2,
+                                ))),
+                      )),
+                    ],
                   ),
                 ),
               ),
@@ -375,9 +406,11 @@ class _NumberPickerState extends State<NumberPicker>
       // if (_value != widget.initialValue)
       {
         if (adding && _value + 1 <= widget.maxValue) {
-          setState(() => _value = _value + widget.interval);
+          valueChange(_value + widget.interval);
+          // setState(() => _value = _value + widget.interval);
         } else if (!adding && _value - 1 >= widget.minValue) {
-          setState(() => _value = _value - widget.interval);
+          valueChange(_value - widget.interval);
+          // setState(() => _value = _value - widget.interval);
         } else {
           _buttonTouch = false;
           valueOutOfConstraints = true;
@@ -464,26 +497,32 @@ class _NumberPickerState extends State<NumberPicker>
       if (tenfold) {
         if (adding) {
           if (_value + (widget.interval * 10) <= widget.maxValue) {
-            setState(() => _value = _value + (widget.interval * 10));
+            valueChange(_value + (widget.interval * 10));
+            // setState(() => _value = _value + (widget.interval * 10));
             valuetenfold = true;
           } else {
-            setState(() => _value = widget.maxValue);
+            valueChange(widget.maxValue);
+            // setState(() => _value = widget.maxValue);
             valueOutOfConstraints = true;
           }
         } else {
           if (_value - (widget.interval * 10) >= widget.minValue) {
-            setState(() => _value = _value - (widget.interval * 10));
+            valueChange(_value - (widget.interval * 10));
+            // setState(() => _value = _value - (widget.interval * 10));
             valuetenfold = true;
           } else {
-            setState(() => _value = widget.minValue);
+            valueChange(widget.minValue);
+            // setState(() => _value = widget.minValue);
             valueOutOfConstraints = true;
           }
         }
       } else {
         if (adding && _value + 1 <= widget.maxValue) {
-          setState(() => _value = _value + widget.interval);
+          valueChange(_value + widget.interval);
+          // setState(() => _value = _value + widget.interval);
         } else if (!adding && _value - 1 >= widget.minValue) {
-          setState(() => _value = _value - widget.interval);
+          valueChange(_value - widget.interval);
+          // setState(() => _value = _value - widget.interval);
         } else {
           valueOutOfConstraints = true;
         }
@@ -661,9 +700,11 @@ class _NumberPickerState extends State<NumberPicker>
                         textAlign: TextAlign.center,
                         onChanged: (val) {
                           if (int.parse(val) > widget.maxValue) {
-                            _value = widget.maxValue;
+                            valueChange(widget.maxValue);
+                            // _value = widget.maxValue;
                           } else {
-                            _value = double.parse(val);
+                            valueChange(double.parse(val));
+                            // _value = double.parse(val);
                           }
                           setState(() {});
                         },
@@ -699,6 +740,31 @@ class _NumberPickerState extends State<NumberPicker>
       },
     );
   }
+
+  void valueChange(double mValue) {
+    if (widget.callBack != null) {
+      setState(() => visibleProgress = true);
+      widget.callBack!(mValue).then((ret) => {
+            if (ret)
+              {
+                setState(() {
+                  visibleProgress = false;
+                  _value = mValue;
+                })
+              }else{
+              setState(() {
+                visibleProgress = false;
+                if (widget.onOutOfConstraints != null) widget.onOutOfConstraints!();
+                if (widget.enableOnOutOfConstraintsAnimation) {
+                  _backgroundColorController.forward();
+                }
+              })
+            }
+          });
+    } else {
+      setState(() => _value = mValue);
+    }
+  }
 }
 
 class NumberSelectionTheme {
@@ -721,6 +787,7 @@ bool isInteger(double value) => value is int || value == value.roundToDouble();
 int getDecimalPlaces(double number) {
   int decimals = 0;
   List<String> substr = number.toString().split('.');
-  if (number != number.round() && substr.isNotEmpty ) decimals = substr[1].length;
+  if (number != number.round() && substr.isNotEmpty)
+    decimals = substr[1].length;
   return decimals;
 }

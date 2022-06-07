@@ -46,9 +46,17 @@ class MyApp extends StatelessWidget {
                         numberColor: Colors.white,
                         backgroundColor: Colors.deepPurpleAccent,
                         outOfConstraintsColor: Colors.deepOrange),
-                    interval: 0.05,
+                    interval: 1,
                     minValue: 0,
                     maxValue: 22250,
+                    callBack: (val) async {
+                      if(val < 5) {
+                        await Future.delayed(Duration(seconds: 5));
+                        return true;
+                      } else {
+                        return false;
+                      }
+                    },
                     direction: Axis.horizontal,
                     withSpring: true,
                     onChanged: (double value) => print("value: $value"),

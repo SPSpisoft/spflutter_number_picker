@@ -19,11 +19,11 @@ TODO: Forked & Customized https://github.com/AliRn76/number_selection .. Tank's 
 
 
 ## Customization
-- support double values
 - Ability to enter values manually (by keyboard -> LongTouch Text)
+- Support double values & auto set keyboard and text show
 - Change interval value
-- add 10X interval 
-- auto text font size change with text length
+- Add 10x interval 
+- Auto text font size change with text length
  
 ## Usage
 
