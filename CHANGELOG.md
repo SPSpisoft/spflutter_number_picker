@@ -9,3 +9,5 @@ edited readme
 
 ## 1.2.0
 * add callBack
+## 1.2.1
+* remove warnings

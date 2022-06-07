@@ -4,7 +4,6 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
-import 'package:flutter/services.dart';
 
 class NumberPicker extends StatefulWidget {
   const NumberPicker(
@@ -398,9 +397,9 @@ class _NumberPickerState extends State<NumberPicker>
 
     bool valueOutOfConstraints = false;
     while (_buttonTouch) {
-      print("SPS 2");
-      print(_value);
-      print(widget.interval);
+      // print("SPS 2");
+      // print(_value);
+      // print(widget.interval);
 
       // do your thing
       // if (_value != widget.initialValue)
@@ -417,7 +416,7 @@ class _NumberPickerState extends State<NumberPicker>
         }
       }
 
-      print("SPS 2.1");
+      // print("SPS 2.1");
       if (widget.withSpring) {
         final SpringDescription _kDefaultSpring =
             SpringDescription.withDampingRatio(
@@ -453,7 +452,7 @@ class _NumberPickerState extends State<NumberPicker>
             curve: Curves.bounceOut,
             duration: const Duration(milliseconds: 500));
       }
-      print("SPS 2.2");
+      // print("SPS 2.2");
 
       if (valueOutOfConstraints) {
         if (widget.onOutOfConstraints != null) widget.onOutOfConstraints!();
@@ -463,12 +462,12 @@ class _NumberPickerState extends State<NumberPicker>
       } else if (widget.onChanged != null) {
         widget.onChanged!(_value);
       }
-      print("SPS 2.3");
+      // print("SPS 2.3");
       // _buttonTouch = false;
       // wait a bit
       await Future.delayed(Duration(milliseconds: widget.durationAutoPick));
     }
-    print("SPS 3");
+    // print("SPS 3");
     _buttonTouchAdd = false;
     _buttonTouch = false;
     _loopActive = false;
@@ -490,16 +489,16 @@ class _NumberPickerState extends State<NumberPicker>
           _startAnimationOutOfConstraintsPosY = adding ? 0.25 : 0.25;
     }
     if (!_buttonTouchAdd) {
-      print("SPS 1 >> changeValue");
+      // print("SPS 1 >> changeValue");
       bool valueOutOfConstraints = false;
-      bool valuetenfold = false;
+      bool valuation = false;
 
       if (tenfold) {
         if (adding) {
           if (_value + (widget.interval * 10) <= widget.maxValue) {
             valueChange(_value + (widget.interval * 10));
             // setState(() => _value = _value + (widget.interval * 10));
-            valuetenfold = true;
+            valuation = true;
           } else {
             valueChange(widget.maxValue);
             // setState(() => _value = widget.maxValue);
@@ -509,7 +508,7 @@ class _NumberPickerState extends State<NumberPicker>
           if (_value - (widget.interval * 10) >= widget.minValue) {
             valueChange(_value - (widget.interval * 10));
             // setState(() => _value = _value - (widget.interval * 10));
-            valuetenfold = true;
+            valuation = true;
           } else {
             valueChange(widget.minValue);
             // setState(() => _value = widget.minValue);
@@ -562,10 +561,10 @@ class _NumberPickerState extends State<NumberPicker>
 
         final SpringDescription _kDefaultSpringTen =
             SpringDescription.withDampingRatio(
-          mass: valuetenfold && widget.enableOnOutOfConstraintsAnimation
+          mass: valuation && widget.enableOnOutOfConstraintsAnimation
               ? 0.4
               : 0.9,
-          stiffness: valuetenfold && widget.enableOnOutOfConstraintsAnimation
+          stiffness: valuation && widget.enableOnOutOfConstraintsAnimation
               ? 1000
               : 250.0,
           ratio: 0.6,
@@ -574,7 +573,7 @@ class _NumberPickerState extends State<NumberPicker>
         if (_isHorizontal) {
           _controller.animateWith(SpringSimulation(
               _kDefaultSpringTen,
-              valuetenfold && widget.enableOnOutOfConstraintsAnimation
+              valuation && widget.enableOnOutOfConstraintsAnimation
                   ? _startAnimationOutOfConstraintsPosX
                   : _startAnimationPosX,
               0.0,
@@ -582,7 +581,7 @@ class _NumberPickerState extends State<NumberPicker>
         } else {
           _controller.animateWith(SpringSimulation(
               _kDefaultSpringTen,
-              valuetenfold && widget.enableOnOutOfConstraintsAnimation
+              valuation && widget.enableOnOutOfConstraintsAnimation
                   ? _startAnimationOutOfConstraintsPosY
                   : _startAnimationPosY,
               0.0,
@@ -594,7 +593,7 @@ class _NumberPickerState extends State<NumberPicker>
             duration: const Duration(milliseconds: 500));
       }
 
-      if (valuetenfold) {
+      if (valuation) {
         if (widget.onOutOfConstraints != null) widget.onOutOfConstraints!();
         if (widget.enableOnOutOfConstraintsAnimation) {
           _backgroundColorController.forward(from: -10);
@@ -787,7 +786,8 @@ bool isInteger(double value) => value is int || value == value.roundToDouble();
 int getDecimalPlaces(double number) {
   int decimals = 0;
   List<String> substr = number.toString().split('.');
-  if (number != number.round() && substr.isNotEmpty)
+  if (number != number.round() && substr.isNotEmpty) {
     decimals = substr[1].length;
+  }
   return decimals;
 }
