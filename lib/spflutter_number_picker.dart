@@ -129,6 +129,8 @@ class _NumberPickerState extends State<NumberPicker>
 
   bool visibleProgress = false;
 
+  double mVal = 0;
+
   @override
   void initState() {
     if (widget.intCheck) {
@@ -142,7 +144,8 @@ class _NumberPickerState extends State<NumberPicker>
     }
     cntDP = max(getDecimalPlaces(widget.interval),
         getDecimalPlaces(widget.initialValue));
-    // _onPanStart;
+
+    _onPanStart;
     super.initState();
   }
 
@@ -561,9 +564,8 @@ class _NumberPickerState extends State<NumberPicker>
 
         final SpringDescription _kDefaultSpringTen =
             SpringDescription.withDampingRatio(
-          mass: valuation && widget.enableOnOutOfConstraintsAnimation
-              ? 0.4
-              : 0.9,
+          mass:
+              valuation && widget.enableOnOutOfConstraintsAnimation ? 0.4 : 0.9,
           stiffness: valuation && widget.enableOnOutOfConstraintsAnimation
               ? 1000
               : 250.0,
@@ -690,7 +692,8 @@ class _NumberPickerState extends State<NumberPicker>
                                 decimal: true),
                         // inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                         initialValue:
-                            isInt ? _value.round().toString() : '$_value',
+                            isInt ? _value.round().toString() : _value.toStringAsFixed(cntDP),
+
                         // _value.toString(),
                         // decoration: const InputDecoration(
                         //   icon: Icon(Icons.ac_unit),
@@ -698,16 +701,39 @@ class _NumberPickerState extends State<NumberPicker>
                         maxLength: widget.maxValue.toString().length,
                         textAlign: TextAlign.center,
                         onChanged: (val) {
-                          if (int.parse(val) > widget.maxValue) {
-                            valueChange(widget.maxValue);
-                            // _value = widget.maxValue;
-                          } else {
-                            valueChange(double.parse(val));
-                            // _value = double.parse(val);
+                          mVal = double.parse(val);
+                          if (widget.callBack == null) {
+                            if (mVal > widget.maxValue) {
+                              valueChange(widget.maxValue);
+                              // _value = widget.maxValue;
+                            } else {
+                              valueChange(mVal);
+                              // _value = double.parse(val);
+                            }
+                            setState(() {});
                           }
-                          setState(() {});
                         },
-                        onEditingComplete: () {
+                        onEditingComplete: () async {
+                          var vD = mVal%widget.interval;
+                          if(vD != 0) {
+                            if (widget.onOutOfConstraints != null) widget.onOutOfConstraints!();
+                            if (widget.enableOnOutOfConstraintsAnimation) _backgroundColorController.forward();
+                            mVal = mVal - vD;
+                            _value = mVal;
+                            // await Future.delayed(const Duration(seconds: 1));
+                            setState(() {});
+                          }
+
+                          if (widget.callBack != null) {
+                            if (mVal > widget.maxValue) {
+                              valueChange(widget.maxValue);
+                              // _value = widget.maxValue;
+                            } else {
+                              valueChange(mVal);
+                              // _value = double.parse(val);
+                            }
+                            setState(() {});
+                          }
                           Navigator.pop(context);
                         },
                         enableInteractiveSelection: false,
@@ -750,15 +776,15 @@ class _NumberPickerState extends State<NumberPicker>
                   visibleProgress = false;
                   _value = mValue;
                 })
-              }else{
-              setState(() {
-                visibleProgress = false;
-                if (widget.onOutOfConstraints != null) widget.onOutOfConstraints!();
-                if (widget.enableOnOutOfConstraintsAnimation) {
-                  _backgroundColorController.forward();
-                }
-              })
-            }
+              }
+            else
+              {
+                setState(() {
+                  visibleProgress = false;
+                  if (widget.onOutOfConstraints != null) widget.onOutOfConstraints!();
+                  if (widget.enableOnOutOfConstraintsAnimation) _backgroundColorController.forward();
+                })
+              }
           });
     } else {
       setState(() => _value = mValue);

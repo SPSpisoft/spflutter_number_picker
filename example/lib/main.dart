@@ -18,24 +18,22 @@ class MyApp extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: <Widget>[
-              Center(
-                child: NumberPicker(
-                  theme: NumberSelectionTheme(
-                      draggableCircleColor: Colors.blue,
-                      iconsColor: Colors.white,
-                      numberColor: Colors.white,
-                      backgroundColor: Colors.deepPurpleAccent,
-                      outOfConstraintsColor: Colors.deepOrange),
-                  interval: 1,
-                  minValue: -10,
-                  maxValue: 10.2,
-                  direction: Axis.vertical,
-                  withSpring: true,
-                  onChanged: (double value) => print("value: $value"),
-                  enableOnOutOfConstraintsAnimation: true,
-                  onOutOfConstraints: () =>
-                      print("This value is too high or too low"),
-                ),
+              NumberPicker(
+                theme: NumberSelectionTheme(
+                    draggableCircleColor: Colors.blue,
+                    iconsColor: Colors.white,
+                    numberColor: Colors.white,
+                    backgroundColor: Colors.deepPurpleAccent,
+                    outOfConstraintsColor: Colors.deepOrange),
+                interval: 1,
+                minValue: -10,
+                maxValue: 10.2,
+                direction: Axis.vertical,
+                withSpring: true,
+                onChanged: (double value) => print("value: $value"),
+                enableOnOutOfConstraintsAnimation: true,
+                onOutOfConstraints: () =>
+                    print("This value is too high or too low"),
               ),
               Center(
                 child: SizedBox(
@@ -48,12 +46,12 @@ class MyApp extends StatelessWidget {
                         numberColor: Colors.white,
                         backgroundColor: Colors.deepPurpleAccent,
                         outOfConstraintsColor: Colors.deepOrange),
-                    interval: 1,
+                    interval: 0.3,
                     minValue: 0,
                     maxValue: 22250,
                     callBack: (val) async {
                       if(val < 5) {
-                        await Future.delayed(const Duration(seconds: 5));
+                        await Future.delayed(const Duration(seconds: 3));
                         return true;
                       } else {
                         return false;

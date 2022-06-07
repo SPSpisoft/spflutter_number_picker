@@ -11,3 +11,5 @@ edited readme
 * add callBack
 ## 1.2.1
 * remove warnings
+## 1.2.2
+* debug
