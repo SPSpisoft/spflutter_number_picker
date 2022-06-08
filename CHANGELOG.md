@@ -16,4 +16,6 @@ edited readme
 ## 1.2.2+1
 * test
 ## 1.2.3
-* test
+* reset
+## 1.2.4
+* customized progress & debug
