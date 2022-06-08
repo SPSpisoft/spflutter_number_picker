@@ -31,7 +31,7 @@ class NumberPicker extends StatefulWidget {
   final double initialValue;
   final double interval;
   final bool intCheck;
-  final Future<bool> Function(double newValue)? callBack;
+  final bool Function(double newValue)? callBack;
 
   /// called whenever the value of the stepper changed
   final ValueChanged<double>? onChanged;
@@ -769,13 +769,13 @@ class _NumberPickerState extends State<NumberPicker>
   void valueChange(double mValue) {
     if (widget.callBack != null) {
       setState(() => visibleProgress = true);
-      widget.callBack!(mValue).then((ret) => {
-            if (ret)
+      // widget.callBack!(mValue).then((ret) => {
+            if (widget.callBack!(mValue))
               {
                 setState(() {
                   visibleProgress = false;
                   _value = mValue;
-                })
+                });
               }
             else
               {
@@ -783,9 +783,9 @@ class _NumberPickerState extends State<NumberPicker>
                   visibleProgress = false;
                   if (widget.onOutOfConstraints != null) widget.onOutOfConstraints!();
                   if (widget.enableOnOutOfConstraintsAnimation) _backgroundColorController.forward();
-                })
+                });
               }
-          });
+          // });
     } else {
       setState(() => _value = mValue);
     }

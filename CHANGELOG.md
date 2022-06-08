@@ -13,3 +13,5 @@ edited readme
 * remove warnings
 ## 1.2.2
 * debug
+## 1.2.2+1
+* test
