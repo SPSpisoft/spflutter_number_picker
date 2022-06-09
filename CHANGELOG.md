@@ -19,3 +19,5 @@ edited readme
 * reset
 ## 1.2.4
 * customized progress & debug
+## 1.2.5
+* debug & add dialog control & change return dialog(bool->double)

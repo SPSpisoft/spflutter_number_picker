@@ -20,9 +20,10 @@ class NumberPicker extends StatefulWidget {
       this.minValue = 0,
       this.expanse = 380,
       this.intCheck = true,
+      this.withDialog = true,
+      this.dialogShowOnlyLongTouch = false,
       this.durationAutoPick = 600,
-      this.progressColor = Colors.amberAccent,
-      this.progressWidth = 2.0,
+      this.progressWidth = 8.0,
       this.theme})
       : super(key: key);
 
@@ -33,8 +34,11 @@ class NumberPicker extends StatefulWidget {
   final double initialValue;
   final double interval;
   final bool intCheck;
-  final Future<bool> Function(double newValue)? callBack;
-  final Color progressColor;
+  final bool withDialog;
+  final bool dialogShowOnlyLongTouch;
+  final Future<double> Function(double newValue)? callBack;
+
+  // final Color progressColor;
   final double progressWidth;
 
   /// called whenever the value of the stepper changed
@@ -103,11 +107,14 @@ class _NumberPickerState extends State<NumberPicker>
               begin: const Offset(0.0, 0.0), end: const Offset(0.0, 1.5))
           .animate(_controller);
   late double _value = widget.initialValue;
-  late double _startAnimationPosX = -999;
-  late double _startAnimationPosY = -999;
 
-  late double _startAnimationOutOfConstraintsPosX;
-  late double _startAnimationOutOfConstraintsPosY;
+  double startPosition = 1;
+
+  late double _startAnimationPosX = startPosition;
+  late double _startAnimationPosY = startPosition;
+
+  late double _startAnimationOutOfConstraintsPosX = startPosition * -1;
+  late double _startAnimationOutOfConstraintsPosY = startPosition * -1;
 
   late final AnimationController _backgroundColorController =
       AnimationController(
@@ -286,8 +293,16 @@ class _NumberPickerState extends State<NumberPicker>
                                       child: child, scale: animation);
                                 },
                                 child: InkWell(
+                                  onTap: () {
+                                    if (widget.withDialog &&
+                                        !widget.dialogShowOnlyLongTouch) {
+                                      showTitleDialog();
+                                    }
+                                  },
                                   onLongPress: () {
-                                    showTitleDialog();
+                                    if (widget.withDialog) {
+                                      showTitleDialog();
+                                    }
                                     // Navigator.push(context, new MaterialPageRoute(
                                     //   builder: (BuildContext context) => _myDialog,
                                     //   fullscreenDialog: true,
@@ -315,12 +330,13 @@ class _NumberPickerState extends State<NumberPicker>
                       ),
                       Center(
                           child: Padding(
-                        padding: const EdgeInsets.only(bottom: 20),
-                        child: SizedBox.expand(
+                        padding: const EdgeInsets.all(3),
+                        child: AspectRatio(
+                            aspectRatio: 1,
                             child: Visibility(
                                 visible: visibleProgress,
                                 child: CircularProgressIndicator(
-                                  color: widget.progressColor,
+                                  color: widget.theme!.progressColor,
                                   strokeWidth: widget.progressWidth,
                                 ))),
                       )),
@@ -395,9 +411,9 @@ class _NumberPickerState extends State<NumberPicker>
   }
 
   void _increaseCounterWhilePressed({required bool adding}) async {
-    if (_startAnimationPosY == -999 || _startAnimationPosX == -999) {
-      _onPanStart;
-    }
+    // if (_startAnimationPosY == startPosition || _startAnimationPosX == startPosition) {
+    //   _onPanStart;
+    // }
     _buttonTouchAdd = true;
     if (_loopActive) return;
     _loopActive = true;
@@ -411,10 +427,12 @@ class _NumberPickerState extends State<NumberPicker>
       // do your thing
       // if (_value != widget.initialValue)
       {
-        if (adding && (_value + 1 <= widget.maxValue || widget.maxValue < 0)) {
+        if (adding &&
+            (_value + widget.interval <= widget.maxValue ||
+                widget.maxValue < 0)) {
           valueChange(_value + widget.interval);
           // setState(() => _value = _value + widget.interval);
-        } else if (!adding && _value - 1 >= widget.minValue) {
+        } else if (!adding && _value - widget.interval >= widget.minValue) {
           valueChange(_value - widget.interval);
           // setState(() => _value = _value - widget.interval);
         } else {
@@ -502,7 +520,8 @@ class _NumberPickerState extends State<NumberPicker>
 
       if (tenfold) {
         if (adding) {
-          if (_value + (widget.interval * 10) <= widget.maxValue || widget.maxValue < 0) {
+          if (_value + (widget.interval * 10) <= widget.maxValue ||
+              widget.maxValue < 0) {
             valueChange(_value + (widget.interval * 10));
             // setState(() => _value = _value + (widget.interval * 10));
             valuation = true;
@@ -523,10 +542,12 @@ class _NumberPickerState extends State<NumberPicker>
           }
         }
       } else {
-        if (adding && (_value + 1 <= widget.maxValue || widget.maxValue < 0)) {
+        if (adding &&
+            (_value + widget.interval <= widget.maxValue ||
+                widget.maxValue < 0)) {
           valueChange(_value + widget.interval);
           // setState(() => _value = _value + widget.interval);
-        } else if (!adding && _value - 1 >= widget.minValue) {
+        } else if (!adding && _value - widget.interval >= widget.minValue) {
           valueChange(_value - widget.interval);
           // setState(() => _value = _value - widget.interval);
         } else {
@@ -695,8 +716,9 @@ class _NumberPickerState extends State<NumberPicker>
                             : const TextInputType.numberWithOptions(
                                 decimal: true),
                         // inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                        initialValue:
-                            isInt ? _value.round().toString() : _value.toStringAsFixed(cntDP),
+                        initialValue: isInt
+                            ? _value.round().toString()
+                            : _value.toStringAsFixed(cntDP),
 
                         // _value.toString(),
                         // decoration: const InputDecoration(
@@ -705,23 +727,34 @@ class _NumberPickerState extends State<NumberPicker>
                         maxLength: widget.maxValue.toString().length,
                         textAlign: TextAlign.center,
                         onChanged: (val) {
-                          mVal = double.parse(val);
-                          if (widget.callBack == null) {
-                            if (widget.maxValue >=0 && mVal > widget.maxValue) {
-                              valueChange(widget.maxValue);
-                              // _value = widget.maxValue;
-                            } else {
-                              valueChange(mVal);
-                              // _value = double.parse(val);
+                          if (val.isNotEmpty) {
+                            mVal = double.parse(val);
+                            if (widget.callBack == null) {
+                              if (widget.maxValue >= 0 &&
+                                  mVal > widget.maxValue) {
+                                valueChange(widget.maxValue);
+                                // _value = widget.maxValue;
+                              } else {
+                                valueChange(mVal);
+                                // _value = double.parse(val);
+                              }
+                              setState(() {});
                             }
-                            setState(() {});
                           }
                         },
                         onEditingComplete: () async {
-                          var vD = mVal%widget.interval;
-                          if(vD != 0) {
-                            if (widget.onOutOfConstraints != null) widget.onOutOfConstraints!();
-                            if (widget.enableOnOutOfConstraintsAnimation) _backgroundColorController.forward();
+                          if (widget.maxValue >= 0 && mVal > widget.maxValue) {
+                            mVal = widget.maxValue;
+                          }
+
+                          var vD = mVal % widget.interval;
+                          if (vD != 0) {
+                            if (widget.onOutOfConstraints != null) {
+                              widget.onOutOfConstraints!();
+                            }
+                            if (widget.enableOnOutOfConstraintsAnimation) {
+                              _backgroundColorController.forward();
+                            }
                             mVal = mVal - vD;
                             _value = mVal;
                             // await Future.delayed(const Duration(seconds: 1));
@@ -729,13 +762,15 @@ class _NumberPickerState extends State<NumberPicker>
                           }
 
                           if (widget.callBack != null) {
-                            if (widget.maxValue >= 0 && mVal > widget.maxValue) {
-                              valueChange(widget.maxValue);
-                              // _value = widget.maxValue;
-                            } else {
-                              valueChange(mVal);
-                              // _value = double.parse(val);
-                            }
+                            // if (widget.maxValue >= 0 &&
+                            //     mVal > widget.maxValue) {
+                            //   var vD = widget.maxValue % widget.interval;
+                            //   valueChange(widget.maxValue - vD);
+                            //   // _value = widget.maxValue;
+                            // } else {
+                            valueChange(mVal);
+                            // _value = double.parse(val);
+                            // }
                             setState(() {});
                           }
                           Navigator.pop(context);
@@ -754,7 +789,8 @@ class _NumberPickerState extends State<NumberPicker>
                           if (value!.isEmpty) {
                             return '  Enter a valid value';
                           } else {
-                            if (widget.maxValue >= 0 && double.parse(value) > widget.maxValue) {
+                            if (widget.maxValue >= 0 &&
+                                double.parse(value) > widget.maxValue) {
                               return '   out of range (${widget.maxValue.toString()} )';
                             }
                           }
@@ -774,19 +810,35 @@ class _NumberPickerState extends State<NumberPicker>
     if (widget.callBack != null) {
       setState(() => visibleProgress = true);
       widget.callBack!(mValue).then((ret) => {
-            if (ret)
+            if (ret < 0)
               {
+                visibleProgress = false,
+                if (widget.onOutOfConstraints != null)
+                  widget.onOutOfConstraints!(),
+                if (widget.enableOnOutOfConstraintsAnimation)
+                  _backgroundColorController.forward(),
+                setState(() {}),
                 // setState(() {
-                  visibleProgress = false,
-                  _value = mValue,
                 // })
               }
             else
               {
+                visibleProgress = false,
+                if (ret % widget.interval != 0)
+                  {
+                    if (widget.onOutOfConstraints != null)
+                      {
+                        widget.onOutOfConstraints!(),
+                      },
+                    if (widget.enableOnOutOfConstraintsAnimation)
+                      {
+                        _backgroundColorController.forward(),
+                      },
+                    ret = ret - (ret % widget.interval),
+                  },
+                _value = ret,
+                setState(() {}),
                 // setState(() {
-                  visibleProgress = false,
-                  if (widget.onOutOfConstraints != null) widget.onOutOfConstraints!(),
-                  if (widget.enableOnOutOfConstraintsAnimation) _backgroundColorController.forward(),
                 // })
               }
           });
@@ -803,13 +855,16 @@ class NumberSelectionTheme {
   Color? iconsColor;
   Color? backgroundColor;
   Color? outOfConstraintsColor;
+  Color? progressColor;
 
-  NumberSelectionTheme(
-      {this.draggableCircleColor,
-      this.numberColor,
-      this.iconsColor,
-      this.backgroundColor,
-      this.outOfConstraintsColor});
+  NumberSelectionTheme({
+    this.draggableCircleColor,
+    this.numberColor,
+    this.iconsColor,
+    this.backgroundColor,
+    this.outOfConstraintsColor,
+    this.progressColor = Colors.amberAccent,
+  });
 }
 
 bool isInteger(double value) => value is int || value == value.roundToDouble();
