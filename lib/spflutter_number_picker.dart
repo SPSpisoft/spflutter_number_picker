@@ -743,35 +743,38 @@ class _NumberPickerState extends State<NumberPicker>
                           }
                         },
                         onEditingComplete: () async {
-                          if (widget.maxValue >= 0 && mVal > widget.maxValue) {
-                            mVal = widget.maxValue;
-                          }
-
-                          var vD = mVal % widget.interval;
-                          if (vD != 0) {
-                            if (widget.onOutOfConstraints != null) {
-                              widget.onOutOfConstraints!();
+                          if(mVal != _value) {
+                            if (widget.maxValue >= 0 &&
+                                mVal > widget.maxValue) {
+                              mVal = widget.maxValue;
                             }
-                            if (widget.enableOnOutOfConstraintsAnimation) {
-                              _backgroundColorController.forward();
-                            }
-                            mVal = mVal - vD;
-                            _value = mVal;
-                            // await Future.delayed(const Duration(seconds: 1));
-                            setState(() {});
-                          }
 
-                          if (widget.callBack != null) {
-                            // if (widget.maxValue >= 0 &&
-                            //     mVal > widget.maxValue) {
-                            //   var vD = widget.maxValue % widget.interval;
-                            //   valueChange(widget.maxValue - vD);
-                            //   // _value = widget.maxValue;
-                            // } else {
-                            valueChange(mVal);
-                            // _value = double.parse(val);
-                            // }
-                            setState(() {});
+                            var vD = mVal % widget.interval;
+                            if (vD != 0) {
+                              if (widget.onOutOfConstraints != null) {
+                                widget.onOutOfConstraints!();
+                              }
+                              if (widget.enableOnOutOfConstraintsAnimation) {
+                                _backgroundColorController.forward();
+                              }
+                              mVal = mVal - vD;
+                              _value = mVal;
+                              // await Future.delayed(const Duration(seconds: 1));
+                              setState(() {});
+                            }
+
+                            if (widget.callBack != null) {
+                              // if (widget.maxValue >= 0 &&
+                              //     mVal > widget.maxValue) {
+                              //   var vD = widget.maxValue % widget.interval;
+                              //   valueChange(widget.maxValue - vD);
+                              //   // _value = widget.maxValue;
+                              // } else {
+                              valueChange(mVal);
+                              // _value = double.parse(val);
+                              // }
+                              setState(() {});
+                            }
                           }
                           Navigator.pop(context);
                         },
