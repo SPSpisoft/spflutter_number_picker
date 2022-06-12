@@ -27,3 +27,5 @@ edited readme
 * icons control
 ## 1.2.8
 * debug
+* ## 1.2.9
+* change design

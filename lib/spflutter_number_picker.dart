@@ -21,12 +21,13 @@ class NumberPicker extends StatefulWidget {
       this.expanse = 380,
       this.intCheck = true,
       this.withDialog = true,
+      this.iconEmpty = Icons.shopping_cart_outlined,
       this.iconRemove = Icons.remove,
       this.iconAdd = Icons.add,
       this.iconMin,
       this.iconMax,
-      this.iconAddSize = 40,
-      this.iconRemoveSize = 40,
+      this.iconAddSize = 60,
+      this.iconRemoveSize = 60,
       this.dialogShowOnlyLongTouch = false,
       this.durationAutoPick = 600,
       this.progressWidth = 8.0,
@@ -43,6 +44,7 @@ class NumberPicker extends StatefulWidget {
   final bool withDialog;
   final bool dialogShowOnlyLongTouch;
   final Future<double> Function(double newValue)? callBack;
+  final IconData? iconEmpty;
   final IconData iconRemove;
   final IconData iconAdd;
   final IconData? iconMin;
@@ -246,9 +248,9 @@ class _NumberPickerState extends State<NumberPicker>
             alignment: Alignment.center,
             children: <Widget>[
               Positioned(
-                left: _isHorizontal ? 13 : 0,
+                left: _isHorizontal ? 16 : 0,
                 right: _isHorizontal ? null : 0,
-                bottom: _isHorizontal ? 0 : 13,
+                bottom: _isHorizontal ? 0 : 16,
                 top: _isHorizontal ? 0 : null,
                 child: Listener(
                   onPointerDown: (details) {
@@ -258,18 +260,26 @@ class _NumberPickerState extends State<NumberPicker>
                   onPointerUp: (details) {
                     _buttonTouch = false;
                   },
-                  child: IconButton(
-                    icon: Icon(_value == widget.minValue + widget.interval? widget.iconMin?? widget.iconRemove : widget.iconRemove,
-                        size: widget.iconRemoveSize, color: _value == widget.minValue ? _theme.iconsDisableColor?? _theme.iconsColor : _theme.iconsColor),
-                    onPressed: () =>
-                        _changeValue(adding: false, fromButtons: true),
+                  // padding: EdgeInsets.only(bottom: _isHorizontal ? 0 : widget.iconRemoveSize! - 40),
+                  child: InkWell(
+                    onTap: () => _changeValue(adding: false, fromButtons: true),
+                    child: Icon(
+                        _value == widget.minValue
+                            ? widget.iconEmpty ?? widget.iconRemove
+                            : (_value == widget.minValue + widget.interval
+                                ? widget.iconMin ?? widget.iconRemove
+                                : widget.iconRemove),
+                        size: widget.iconRemoveSize,
+                        color: _value == widget.minValue
+                            ? _theme.iconsDisableColor ?? _theme.iconsColor
+                            : _theme.iconsColor),
                   ),
                 ),
               ),
               Positioned(
                 left: _isHorizontal ? null : 0,
-                right: _isHorizontal ? 13 : 0,
-                top: _isHorizontal ? 0 : 13,
+                right: _isHorizontal ? 16 : 0,
+                top: _isHorizontal ? 0 : 16,
                 bottom: _isHorizontal ? 0 : null,
                 child: Listener(
                   onPointerDown: (details) {
@@ -280,12 +290,15 @@ class _NumberPickerState extends State<NumberPicker>
                     _buttonTouch = false;
                     // _buttonTouchAdd = false;
                   },
-                  child: IconButton(
-                      icon: Icon(_value == widget.maxValue? widget.iconMax?? widget.iconAdd : widget.iconAdd,
-                          size: widget.iconAddSize, color: _theme.iconsColor),
-                      onPressed: () {
-                        _changeValue(adding: true, fromButtons: true);
-                      }),
+                  child: InkWell(
+                    onTap: () => _changeValue(adding: true, fromButtons: true),
+                    child: Icon(
+                        _value == widget.maxValue
+                            ? widget.iconMax ?? widget.iconAdd
+                            : widget.iconAdd,
+                        size: widget.iconAddSize,
+                        color: _theme.iconsColor),
+                  ),
                 ),
               ),
               GestureDetector(
