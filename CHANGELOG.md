@@ -23,3 +23,7 @@ edited readme
 * debug & add dialog control & change return dialog(bool->double)
 ## 1.2.6
 * debug
+## 1.2.7
+* icons control
+## 1.2.8
+* debug

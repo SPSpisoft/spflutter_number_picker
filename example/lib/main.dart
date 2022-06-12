@@ -2,11 +2,31 @@ import 'package:flutter/material.dart';
 import 'package:spflutter_number_picker/spflutter_number_picker.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+// class _MyAppState extends State<MyApp> {
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container();
+//   }
+// }
+//
+// void main() {
+//   runApp(MyApp());
+// }
+
+class _MyAppState extends State<MyApp> {
+
+  // MyApp({Key? key}) : super(key: key);
+  double mVal = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -46,15 +66,21 @@ class MyApp extends StatelessWidget {
                         theme: NumberSelectionTheme(
                             draggableCircleColor: Colors.blue,
                             iconsColor: Colors.white,
+                            iconsDisableColor: Colors.grey,
                             numberColor: Colors.white,
                             progressColor: Colors.deepOrangeAccent,
                             backgroundColor: Colors.deepPurpleAccent,
                             outOfConstraintsColor: Colors.deepOrange),
                         interval: 0.3,
+                        iconRemove: Icons.remove,
+                        // iconRemoveSize: 70,
+                        // iconAddSize: 70,
+                        iconMin: Icons.delete,
+                        iconMax: Icons.fullscreen_exit,
                         minValue: 0,
-                        maxValue: 25,
+                        maxValue: 24.6,
                         callBack: (val) async {
-                          if (val < 5) {
+                          if (val < 50) {
                             await Future.delayed(const Duration(seconds: 3));
                             return val;
                           } else {
@@ -63,7 +89,9 @@ class MyApp extends StatelessWidget {
                         },
                         direction: Axis.horizontal,
                         withSpring: true,
-                        onChanged: (double value) => print("value: $value"),
+                        onChanged: (double value) {
+                          print("value: $value");
+                          },
                         dialogShowOnlyLongTouch: false,
                         enableOnOutOfConstraintsAnimation: true,
                         onOutOfConstraints: () =>

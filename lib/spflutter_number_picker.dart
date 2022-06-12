@@ -21,6 +21,12 @@ class NumberPicker extends StatefulWidget {
       this.expanse = 380,
       this.intCheck = true,
       this.withDialog = true,
+      this.iconRemove = Icons.remove,
+      this.iconAdd = Icons.add,
+      this.iconMin,
+      this.iconMax,
+      this.iconAddSize = 40,
+      this.iconRemoveSize = 40,
       this.dialogShowOnlyLongTouch = false,
       this.durationAutoPick = 600,
       this.progressWidth = 8.0,
@@ -37,6 +43,12 @@ class NumberPicker extends StatefulWidget {
   final bool withDialog;
   final bool dialogShowOnlyLongTouch;
   final Future<double> Function(double newValue)? callBack;
+  final IconData iconRemove;
+  final IconData iconAdd;
+  final IconData? iconMin;
+  final IconData? iconMax;
+  final double? iconAddSize;
+  final double? iconRemoveSize;
 
   // final Color progressColor;
   final double progressWidth;
@@ -195,6 +207,10 @@ class _NumberPickerState extends State<NumberPicker>
               Theme.of(context).colorScheme.secondary,
           iconsColor: widget.theme!.iconsColor ??
               Theme.of(context).colorScheme.secondary,
+          iconsDisableColor: widget.theme!.iconsDisableColor ??
+              Theme.of(context).colorScheme.secondary,
+          progressColor: widget.theme!.progressColor ??
+              Theme.of(context).colorScheme.outline,
           backgroundColor: widget.theme!.backgroundColor ??
               Theme.of(context).primaryColor.withOpacity(0.7),
           outOfConstraintsColor:
@@ -204,6 +220,7 @@ class _NumberPickerState extends State<NumberPicker>
         draggableCircleColor: Theme.of(context).canvasColor,
         numberColor: Theme.of(context).colorScheme.secondary,
         iconsColor: Theme.of(context).colorScheme.secondary,
+        // iconsDisableColor: Theme.of(context).colorScheme.outline,
         backgroundColor: Theme.of(context).primaryColor.withOpacity(0.7),
         outOfConstraintsColor: Colors.red,
       );
@@ -242,8 +259,8 @@ class _NumberPickerState extends State<NumberPicker>
                     _buttonTouch = false;
                   },
                   child: IconButton(
-                    icon: Icon(_theme.iconRemove,
-                        size: _theme.iconRemoveSize, color: _theme.iconsColor),
+                    icon: Icon(_value == widget.minValue + widget.interval? widget.iconMin?? widget.iconRemove : widget.iconRemove,
+                        size: widget.iconRemoveSize, color: _value == widget.minValue ? _theme.iconsDisableColor?? _theme.iconsColor : _theme.iconsColor),
                     onPressed: () =>
                         _changeValue(adding: false, fromButtons: true),
                   ),
@@ -264,9 +281,8 @@ class _NumberPickerState extends State<NumberPicker>
                     // _buttonTouchAdd = false;
                   },
                   child: IconButton(
-                      icon: Icon(_theme.iconAdd,
-                          size: _theme.iconRemoveSize,
-                          color: _theme.iconsColor),
+                      icon: Icon(_value == widget.maxValue? widget.iconMax?? widget.iconAdd : widget.iconAdd,
+                          size: widget.iconAddSize, color: _theme.iconsColor),
                       onPressed: () {
                         _changeValue(adding: true, fromButtons: true);
                       }),
@@ -858,10 +874,7 @@ class NumberSelectionTheme {
   Color? draggableCircleColor;
   Color? numberColor;
   Color? iconsColor;
-  IconData iconAdd;
-  double? iconAddSize;
-  IconData iconRemove;
-  double? iconRemoveSize;
+  Color? iconsDisableColor;
   Color? backgroundColor;
   Color? outOfConstraintsColor;
   Color? progressColor;
@@ -870,10 +883,7 @@ class NumberSelectionTheme {
     this.draggableCircleColor,
     this.numberColor,
     this.iconsColor,
-    this.iconAdd = Icons.add,
-    this.iconRemove = Icons.remove,
-    this.iconAddSize = 40,
-    this.iconRemoveSize = 40,
+    this.iconsDisableColor,
     this.backgroundColor,
     this.outOfConstraintsColor,
     this.progressColor = Colors.amberAccent,
