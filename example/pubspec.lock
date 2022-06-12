@@ -127,7 +127,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "1.2.6"
+    version: "1.2.7"
   stack_trace:
     dependency: transitive
     description:

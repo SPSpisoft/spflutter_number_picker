@@ -54,7 +54,7 @@ class MyApp extends StatelessWidget {
                         minValue: 0,
                         maxValue: 25,
                         callBack: (val) async {
-                          if(val < 5) {
+                          if (val < 5) {
                             await Future.delayed(const Duration(seconds: 3));
                             return val;
                           } else {

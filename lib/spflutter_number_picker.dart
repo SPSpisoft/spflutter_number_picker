@@ -156,7 +156,7 @@ class _NumberPickerState extends State<NumberPicker>
     cntDP = max(getDecimalPlaces(widget.interval),
         getDecimalPlaces(widget.initialValue));
 
-    _onPanStart;
+    // _onPanStart;
     super.initState();
   }
 
@@ -242,8 +242,8 @@ class _NumberPickerState extends State<NumberPicker>
                     _buttonTouch = false;
                   },
                   child: IconButton(
-                    icon:
-                        Icon(Icons.remove, size: 40, color: _theme.iconsColor),
+                    icon: Icon(_theme.iconRemove,
+                        size: _theme.iconRemoveSize, color: _theme.iconsColor),
                     onPressed: () =>
                         _changeValue(adding: false, fromButtons: true),
                   ),
@@ -264,7 +264,9 @@ class _NumberPickerState extends State<NumberPicker>
                     // _buttonTouchAdd = false;
                   },
                   child: IconButton(
-                      icon: Icon(Icons.add, size: 40, color: _theme.iconsColor),
+                      icon: Icon(_theme.iconAdd,
+                          size: _theme.iconRemoveSize,
+                          color: _theme.iconsColor),
                       onPressed: () {
                         _changeValue(adding: true, fromButtons: true);
                       }),
@@ -743,7 +745,7 @@ class _NumberPickerState extends State<NumberPicker>
                           }
                         },
                         onEditingComplete: () async {
-                          if(mVal != _value) {
+                          if (mVal != _value) {
                             if (widget.maxValue >= 0 &&
                                 mVal > widget.maxValue) {
                               mVal = widget.maxValue;
@@ -856,6 +858,10 @@ class NumberSelectionTheme {
   Color? draggableCircleColor;
   Color? numberColor;
   Color? iconsColor;
+  IconData iconAdd;
+  double? iconAddSize;
+  IconData iconRemove;
+  double? iconRemoveSize;
   Color? backgroundColor;
   Color? outOfConstraintsColor;
   Color? progressColor;
@@ -864,6 +870,10 @@ class NumberSelectionTheme {
     this.draggableCircleColor,
     this.numberColor,
     this.iconsColor,
+    this.iconAdd = Icons.add,
+    this.iconRemove = Icons.remove,
+    this.iconAddSize = 40,
+    this.iconRemoveSize = 40,
     this.backgroundColor,
     this.outOfConstraintsColor,
     this.progressColor = Colors.amberAccent,
