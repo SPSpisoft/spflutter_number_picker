@@ -6,18 +6,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 
 class NumberPicker extends StatefulWidget {
-  const NumberPicker(
+  NumberPicker(
       {Key? key,
       this.initialValue = 0,
       this.onChanged,
       this.callBack,
+      this.callOnSet,
       this.onOutOfConstraints,
       this.enableOnOutOfConstraintsAnimation = true,
       this.direction = Axis.horizontal,
       this.withSpring = true,
       this.interval = 1.0,
       this.maxValue = -1,
-      this.minValue = 0,
+      this.minValue = 1,
       this.expanse = 380,
       this.intCheck = true,
       this.withDialog = true,
@@ -38,12 +39,15 @@ class NumberPicker extends StatefulWidget {
   final Axis direction;
 
   /// the initial value of the stepper
-  final double initialValue;
-  final double interval;
+  late  double initialValue;
+  late  double interval;
   final bool intCheck;
   final bool withDialog;
   final bool dialogShowOnlyLongTouch;
   final Future<double> Function(double newValue)? callBack;
+  final Future<NumberPicker> Function(double newValue)? callOnSet;
+  // final Future<bool adding, double jumpVal, double minVal, double maxVal> Function()? callBackOnSet;
+  // final Function(NumberPicker numberPicker)? callOnSet;
   final IconData? iconEmpty;
   final IconData iconRemove;
   final IconData iconAdd;
@@ -76,11 +80,11 @@ class NumberPicker extends StatefulWidget {
 
   /// minimum on the value it can be
   /// defaults is -100
-  final double minValue;
+  late double minValue;
 
   /// maximum of the value it can reach
   /// defaults is 100
-  final double maxValue;
+  late double maxValue;
 
   final double expanse;
   final int durationAutoPick;
@@ -120,7 +124,8 @@ class _NumberPickerState extends State<NumberPicker>
       : _animation = Tween<Offset>(
               begin: const Offset(0.0, 0.0), end: const Offset(0.0, 1.5))
           .animate(_controller);
-  late double _value = widget.initialValue;
+  late double _value = 0;
+  // widget.initialValue < widget.minValue ? widget.minValue : widget.initialValue;
 
   double startPosition = 1;
 
@@ -158,17 +163,10 @@ class _NumberPickerState extends State<NumberPicker>
 
   @override
   void initState() {
-    if (widget.intCheck) {
-      if (isInteger(widget.initialValue) &&
-          isInteger(widget.minValue) &&
-          isInteger(widget.interval)) {
-        isInt = true;
-      } else {
-        isInt = false;
-      }
-    }
-    cntDP = max(getDecimalPlaces(widget.interval),
-        getDecimalPlaces(widget.initialValue));
+    widget.initialValue = widget.initialValue > 0 && widget.initialValue < widget.minValue ? widget.minValue : widget.initialValue;
+    _value = widget.initialValue;
+
+    checkValueType();
 
     // _onPanStart;
     super.initState();
@@ -264,13 +262,13 @@ class _NumberPickerState extends State<NumberPicker>
                   child: InkWell(
                     onTap: () => _changeValue(adding: false, fromButtons: true),
                     child: Icon(
-                        _value == widget.minValue
+                        _value == 0
                             ? widget.iconEmpty ?? widget.iconRemove
-                            : (_value == widget.minValue + widget.interval
+                            : (_value <= widget.minValue
                                 ? widget.iconMin ?? widget.iconRemove
                                 : widget.iconRemove),
                         size: widget.iconRemoveSize,
-                        color: _value == widget.minValue
+                        color: _value == 0
                             ? _theme.iconsDisableColor ?? _theme.iconsColor
                             : _theme.iconsColor),
                   ),
@@ -382,6 +380,17 @@ class _NumberPickerState extends State<NumberPicker>
     );
   }
 
+
+  // Widget _buildForm() {
+  //   return NumberPicker(
+  //       callOnSet: (reNP){
+  //         setState(() {
+  //           NumberPicker(minValue: reNP.minValue, maxValue: reNP.maxValue, interval: reNP.interval,);
+  //         });
+  //       }
+  //   );
+  // }
+
   double offsetFromGlobalPos(Offset globalPosition) {
     RenderBox box = context.findRenderObject() as RenderBox;
     Offset local = box.globalToLocal(globalPosition);
@@ -451,28 +460,9 @@ class _NumberPickerState extends State<NumberPicker>
 
     bool valueOutOfConstraints = false;
     while (_buttonTouch) {
-      // print("SPS 2");
-      // print(_value);
-      // print(widget.interval);
 
-      // do your thing
-      // if (_value != widget.initialValue)
-      {
-        if (adding &&
-            (_value + widget.interval <= widget.maxValue ||
-                widget.maxValue < 0)) {
-          valueChange(_value + widget.interval);
-          // setState(() => _value = _value + widget.interval);
-        } else if (!adding && _value - widget.interval >= widget.minValue) {
-          valueChange(_value - widget.interval);
-          // setState(() => _value = _value - widget.interval);
-        } else {
-          _buttonTouch = false;
-          valueOutOfConstraints = true;
-        }
-      }
+      valueOutOfConstraints = setValue(adding);
 
-      // print("SPS 2.1");
       if (widget.withSpring) {
         final SpringDescription _kDefaultSpring =
             SpringDescription.withDampingRatio(
@@ -573,17 +563,7 @@ class _NumberPickerState extends State<NumberPicker>
           }
         }
       } else {
-        if (adding &&
-            (_value + widget.interval <= widget.maxValue ||
-                widget.maxValue < 0)) {
-          valueChange(_value + widget.interval);
-          // setState(() => _value = _value + widget.interval);
-        } else if (!adding && _value - widget.interval >= widget.minValue) {
-          valueChange(_value - widget.interval);
-          // setState(() => _value = _value - widget.interval);
-        } else {
-          valueOutOfConstraints = true;
-        }
+          valueOutOfConstraints = setValue(adding);
       }
 
       if (widget.withSpring) {
@@ -841,45 +821,98 @@ class _NumberPickerState extends State<NumberPicker>
   }
 
   void valueChange(double mValue) {
-    if (widget.callBack != null) {
+
+    if (widget.callOnSet != null) {
       setState(() => visibleProgress = true);
-      widget.callBack!(mValue).then((ret) => {
-            if (ret < 0)
-              {
-                visibleProgress = false,
-                if (widget.onOutOfConstraints != null)
-                  widget.onOutOfConstraints!(),
-                if (widget.enableOnOutOfConstraintsAnimation)
-                  _backgroundColorController.forward(),
-                setState(() {}),
-                // setState(() {
-                // })
-              }
-            else
-              {
-                visibleProgress = false,
-                if (ret % widget.interval != 0)
-                  {
-                    if (widget.onOutOfConstraints != null)
-                      {
-                        widget.onOutOfConstraints!(),
-                      },
-                    if (widget.enableOnOutOfConstraintsAnimation)
-                      {
-                        _backgroundColorController.forward(),
-                      },
-                    ret = ret - (ret % widget.interval),
-                  },
-                _value = ret,
-                setState(() {}),
-                // setState(() {
-                // })
-              }
-          });
-      setState(() {});
+      widget.callOnSet!(mValue).then((myNumberPicker) => {
+        mValue = mValue - widget.interval + myNumberPicker.interval,
+        widget.maxValue = myNumberPicker.maxValue,
+        widget.minValue = myNumberPicker.minValue,
+        widget.interval = myNumberPicker.interval,
+        widget.initialValue = myNumberPicker.initialValue,
+        checkValueType(),
+        setState(() {
+          runCallBack(mValue);
+        }),
+      });
+      // setState(() {});
+    }
+    else if (widget.callBack != null) {
+      runCallBack(mValue);
     } else {
       setState(() => _value = mValue);
     }
+  }
+
+  void runCallBack(double mValue) {
+    setState(() => visibleProgress = true);
+    double mt;
+    widget.callBack!(mValue).then((ret) => {
+      if (ret < 0)
+        {
+          visibleProgress = false,
+          if (widget.onOutOfConstraints != null)
+            widget.onOutOfConstraints!(),
+          if (widget.enableOnOutOfConstraintsAnimation)
+            _backgroundColorController.forward(),
+          setState(() {}),
+          // setState(() {
+          // })
+        }
+      else
+        {
+          visibleProgress = false,
+          mt = ret % widget.interval,
+          if (mt != 0 && double.parse((mt).toStringAsFixed(cntDP)) != widget.interval)
+            {
+              if (widget.onOutOfConstraints != null)
+                {
+                  widget.onOutOfConstraints!(),
+                },
+              if (widget.enableOnOutOfConstraintsAnimation)
+                {
+                  _backgroundColorController.forward(),
+                },
+              ret = ret - (ret % widget.interval),
+            },
+          _value = ret,
+          setState(() {}),
+          // setState(() {
+          // })
+        }
+    });
+    setState(() {});
+  }
+
+  bool setValue(bool adding) {
+    bool valueOutOfConstraints = false;
+
+    if (adding && ((_value + widget.interval <= widget.maxValue || widget.maxValue < 0)
+        || (_value == 0 && widget.initialValue < widget.maxValue))) {
+      valueChange(_value == 0 ? widget.minValue : _value + widget.interval);
+      // setState(() => _value = _value + widget.interval);
+    } else if (!adding && _value > 0) {
+      valueChange(_value <= widget.minValue ? 0 : _value - widget.interval);
+      // setState(() => _value = _value - widget.interval);
+    } else {
+      _buttonTouch = false;
+      valueOutOfConstraints = true;
+    }
+    return valueOutOfConstraints;
+  }
+
+  void checkValueType() {
+    if (widget.intCheck) {
+      if (isInteger(widget.initialValue) &&
+          isInteger(widget.minValue) &&
+          isInteger(widget.interval)) {
+        isInt = true;
+      } else {
+        isInt = false;
+      }
+    }
+    cntDP = max(getDecimalPlaces(widget.interval),
+        getDecimalPlaces(widget.initialValue));
   }
 }
 

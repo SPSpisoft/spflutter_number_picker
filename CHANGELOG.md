@@ -27,5 +27,7 @@ edited readme
 * icons control
 ## 1.2.8
 * debug
-* ## 1.2.9
+## 1.2.9
 * change design
+## 1.3.0
+change values runtime
