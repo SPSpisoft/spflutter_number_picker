@@ -31,3 +31,7 @@ edited readme
 * change design
 ## 1.3.0
 change values runtime
+## 1.3.2
+test
+## 1.3.3
+* debug

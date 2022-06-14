@@ -135,7 +135,7 @@ class _NumberPickerState extends State<NumberPicker>
   late double _startAnimationOutOfConstraintsPosX = startPosition * -1;
   late double _startAnimationOutOfConstraintsPosY = startPosition * -1;
 
-  late final AnimationController _backgroundColorController =
+  late AnimationController _backgroundColorController =
       AnimationController(
           vsync: this, duration: const Duration(milliseconds: 350), value: 0)
         ..addStatusListener((status) {
@@ -163,6 +163,16 @@ class _NumberPickerState extends State<NumberPicker>
 
   @override
   void initState() {
+
+    _backgroundColorController =
+    AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 350), value: 0)
+      ..addStatusListener((status) {
+        if (status == AnimationStatus.completed) {
+          _backgroundColorController.animateTo(0, curve: Curves.easeIn);
+        }
+      });
+
     widget.initialValue = widget.initialValue > 0 && widget.initialValue < widget.minValue ? widget.minValue : widget.initialValue;
     _value = widget.initialValue;
 
