@@ -24,7 +24,6 @@ class MyApp extends StatefulWidget {
 // }
 
 class _MyAppState extends State<MyApp> {
-
   // MyApp({Key? key}) : super(key: key);
   double mVal = 0;
 
@@ -97,7 +96,7 @@ class _MyAppState extends State<MyApp> {
                         withSpring: true,
                         onChanged: (double value) {
                           print("value: $value");
-                          },
+                        },
                         dialogShowOnlyLongTouch: false,
                         enableOnOutOfConstraintsAnimation: true,
                         onOutOfConstraints: () =>
@@ -106,7 +105,6 @@ class _MyAppState extends State<MyApp> {
                     ),
                   ),
                 ),
-
                 Padding(
                   padding: const EdgeInsets.all(18.0),
                   child: SizedBox(
@@ -129,12 +127,19 @@ class _MyAppState extends State<MyApp> {
                       iconMin: Icons.delete,
                       iconMax: Icons.fullscreen_exit,
                       callOnSet: (val0) async {
-                        return NumberPicker(
-                          initialValue: 3,
-                          minValue: 1,
-                          maxValue: 20,
-                          interval: 1,
+                        NumberPicker ret = NumberPicker();
+                        await Future.delayed(const Duration(seconds: 2)).then(
+                          (value) => {
+                            ret = NumberPicker(
+                              initialValue: 3,
+                              minValue: 1,
+                              maxValue: 20,
+                              interval: 1,
+                            ),
+                          },
                         );
+                        return ret;
+                        // return NumberPicker();
                       },
                       callBack: (val) async {
                         if (val < 50) {

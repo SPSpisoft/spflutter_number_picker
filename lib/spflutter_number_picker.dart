@@ -846,41 +846,45 @@ class _NumberPickerState extends State<NumberPicker>
 
   void runCallBack(double mValue) {
     setState(() => visibleProgress = true);
-    double mt;
-    widget.callBack!(mValue).then((ret) => {
-      if (ret < 0)
-        {
-          visibleProgress = false,
-          if (widget.onOutOfConstraints != null)
-            widget.onOutOfConstraints!(),
-          if (widget.enableOnOutOfConstraintsAnimation)
-            _backgroundColorController.forward(),
-          setState(() {}),
-          // setState(() {
-          // })
-        }
-      else
-        {
-          visibleProgress = false,
-          mt = ret % widget.interval,
-          if (mt != 0 && double.parse((mt).toStringAsFixed(cntDP)) != widget.interval)
-            {
-              if (widget.onOutOfConstraints != null)
-                {
-                  widget.onOutOfConstraints!(),
-                },
-              if (widget.enableOnOutOfConstraintsAnimation)
-                {
-                  _backgroundColorController.forward(),
-                },
-              ret = ret - (ret % widget.interval),
-            },
-          _value = ret,
-          setState(() {}),
-          // setState(() {
-          // })
-        }
-    });
+    if(widget.callBack != null) {
+      double mt;
+      widget.callBack!(mValue).then((ret) =>
+      {
+        if (ret < 0)
+          {
+            visibleProgress = false,
+            if (widget.onOutOfConstraints != null)
+              widget.onOutOfConstraints!(),
+            if (widget.enableOnOutOfConstraintsAnimation)
+              _backgroundColorController.forward(),
+            setState(() {}),
+            // setState(() {
+            // })
+          }
+        else
+          {
+            visibleProgress = false,
+            mt = ret % widget.interval,
+            if (mt != 0 &&
+                double.parse((mt).toStringAsFixed(cntDP)) != widget.interval)
+              {
+                if (widget.onOutOfConstraints != null)
+                  {
+                    widget.onOutOfConstraints!(),
+                  },
+                if (widget.enableOnOutOfConstraintsAnimation)
+                  {
+                    _backgroundColorController.forward(),
+                  },
+                ret = ret - (ret % widget.interval),
+              },
+            _value = ret,
+            setState(() {}),
+            // setState(() {
+            // })
+          }
+      });
+    }
     setState(() {});
   }
 
