@@ -44,7 +44,7 @@ class NumberPicker extends StatefulWidget {
   final bool intCheck;
   final bool withDialog;
   final bool dialogShowOnlyLongTouch;
-  final Future<double> Function(double newValue)? callBack;
+  late  Future<double> Function(double newValue)? callBack;
   final Future<NumberPicker> Function(double newValue)? callOnSet;
   // final Future<bool adding, double jumpVal, double minVal, double maxVal> Function()? callBackOnSet;
   // final Function(NumberPicker numberPicker)? callOnSet;
@@ -830,6 +830,7 @@ class _NumberPickerState extends State<NumberPicker>
         widget.minValue = myNumberPicker.minValue,
         widget.interval = myNumberPicker.interval,
         widget.initialValue = myNumberPicker.initialValue,
+        widget.callBack = myNumberPicker.callBack,
         checkValueType(),
         setState(() {
           runCallBack(mValue);
