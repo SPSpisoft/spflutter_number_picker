@@ -1,6 +1,6 @@
 name: spflutter_number_picker
 description: Flutter Number Picker => Forked & Customized number_selection .. Optional with dialog to change value by keyboard.
-version: 1.3.3
+version: 1.3.4
 homepage: https://github.com/SPSpisoft/spflutter_number_picker
 
 environment:

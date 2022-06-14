@@ -833,6 +833,14 @@ class _NumberPickerState extends State<NumberPicker>
   void valueChange(double mValue) {
 
     if (widget.callOnSet != null) {
+      _backgroundColorController =
+      AnimationController(
+          vsync: this, duration: const Duration(milliseconds: 350), value: 0)
+        ..addStatusListener((status) {
+          if (status == AnimationStatus.completed) {
+            _backgroundColorController.animateTo(0, curve: Curves.easeIn);
+          }
+        });
       setState(() => visibleProgress = true);
       widget.callOnSet!(mValue).then((myNumberPicker) => {
         mValue = mValue - widget.interval + myNumberPicker.interval,
