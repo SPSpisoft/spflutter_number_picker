@@ -8,6 +8,8 @@ import 'package:flutter/physics.dart';
 class NumberPicker extends StatefulWidget {
   NumberPicker(
       {Key? key,
+      this.valueController,
+        this.resetValue,
       this.initialValue = 0,
       this.onChanged,
       this.callBack,
@@ -35,12 +37,14 @@ class NumberPicker extends StatefulWidget {
       this.theme})
       : super(key: key);
 
+  TextEditingController? valueController = TextEditingController();
   /// the orientation of the stepper its horizontal or vertical.
   final Axis direction;
 
   /// the initial value of the stepper
   late  double initialValue;
   late  double interval;
+  late double? resetValue;
   final bool intCheck;
   final bool withDialog;
   final bool dialogShowOnlyLongTouch;
@@ -109,7 +113,7 @@ class NumberPicker extends StatefulWidget {
 
 class _NumberPickerState extends State<NumberPicker>
     with TickerProviderStateMixin {
-  final TextEditingController titleController = TextEditingController();
+  // final TextEditingController titleController = TextEditingController();
   final GlobalKey<FormState> _keyDialogForm = GlobalKey<FormState>();
 
   bool _buttonTouch = false;
@@ -239,6 +243,10 @@ class _NumberPickerState extends State<NumberPicker>
 
   @override
   Widget build(BuildContext context) {
+    if(widget.resetValue != null){
+      _value = widget.resetValue!;
+      widget.resetValue = null;
+    }
     return FittedBox(
       child: SizedBox(
         width: _isHorizontal ? widget.expanse : 120.0,
@@ -389,7 +397,6 @@ class _NumberPickerState extends State<NumberPicker>
       ),
     );
   }
-
 
   // Widget _buildForm() {
   //   return NumberPicker(
@@ -725,6 +732,7 @@ class _NumberPickerState extends State<NumberPicker>
                       padding:
                           const EdgeInsets.only(left: 70, right: 70, bottom: 5),
                       child: TextFormField(
+                        controller: widget.valueController,
                         key: _keyDialogForm,
                         style: const TextStyle(
                             fontSize: 20, fontWeight: FontWeight.bold),
@@ -833,14 +841,6 @@ class _NumberPickerState extends State<NumberPicker>
   void valueChange(double mValue) {
 
     if (widget.callOnSet != null) {
-      _backgroundColorController =
-      AnimationController(
-          vsync: this, duration: const Duration(milliseconds: 350), value: 0)
-        ..addStatusListener((status) {
-          if (status == AnimationStatus.completed) {
-            _backgroundColorController.animateTo(0, curve: Curves.easeIn);
-          }
-        });
       setState(() => visibleProgress = true);
       widget.callOnSet!(mValue).then((myNumberPicker) => {
         mValue = mValue - widget.interval + myNumberPicker.interval,

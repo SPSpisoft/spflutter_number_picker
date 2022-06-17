@@ -25,7 +25,9 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   // MyApp({Key? key}) : super(key: key);
-  double mVal = 0;
+  TextEditingController textEditingController = TextEditingController();
+
+  double? _resetValue;
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +40,14 @@ class _MyAppState extends State<MyApp> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: <Widget>[
+                OutlinedButton(onPressed: (){
+                  _resetValue = 7;
+                  setState((){
+                    // textEditingController.text = mVal.toStringAsFixed(0);
+                    // bb.valueController!.text = mVal.toStringAsFixed(0);
+                    // bb.initialValue = mVal;
+                  });
+                }, child: Text("ADD")),
                 NumberPicker(
                   theme: NumberSelectionTheme(
                       draggableCircleColor: Colors.blue,
@@ -46,6 +56,9 @@ class _MyAppState extends State<MyApp> {
                       backgroundColor: Colors.deepPurpleAccent,
                       outOfConstraintsColor: Colors.deepOrange),
                   interval: 1,
+                  initialValue: 0,
+                  resetValue: _resetValue,
+                  valueController: textEditingController,
                   maxValue: 10.2,
                   direction: Axis.vertical,
                   withSpring: true,

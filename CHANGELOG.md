@@ -37,3 +37,5 @@ test
 * debug
 ## 1.3.4
 * debug
+## 1.3.5
+* add reset value
