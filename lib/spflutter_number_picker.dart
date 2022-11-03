@@ -95,6 +95,8 @@ class NumberPicker extends StatefulWidget {
   final double expanse;
   final int durationAutoPick;
 
+  final double? wide = 180;
+
   /// Theme of the [NumberSelection] widget:
   ///
   ///
@@ -334,53 +336,58 @@ class _NumberPickerState extends State<NumberPicker>
                   position: _animation as Animation<Offset>,
                   child: Stack(
                     children: [
-                      Material(
-                        color: _theme.draggableCircleColor,
-                        shape: const CircleBorder(),
-                        elevation: 5.0,
-                        child: Center(
-                          child: Stack(
-                            children: [
-                              AnimatedSwitcher(
-                                duration: const Duration(milliseconds: 400),
-                                transitionBuilder: (Widget child,
-                                    Animation<double> animation) {
-                                  return ScaleTransition(
-                                      child: child, scale: animation);
-                                },
-                                child: InkWell(
-                                  onTap: () {
-                                    if (widget.withDialog &&
-                                        !widget.dialogShowOnlyLongTouch) {
-                                      showTitleDialog();
-                                    }
-                                  },
-                                  onLongPress: () {
-                                    if (widget.withDialog) {
-                                      showTitleDialog();
-                                    }
-                                    // Navigator.push(context, new MaterialPageRoute(
-                                    //   builder: (BuildContext context) => _myDialog,
-                                    //   fullscreenDialog: true,
-                                    // ));
-                                  },
-                                  child: Text(
-                                    isInt
-                                        ? _value.round().toString()
-                                        : _value.toStringAsFixed(cntDP),
-                                    key: ValueKey<double>(_value),
-                                    style: TextStyle(
-                                        color: _theme.numberColor,
-                                        fontSize: 70.0 -
-                                            ((_value
-                                                        .toStringAsFixed(cntDP)
-                                                        .length -
-                                                    1) *
-                                                7)),
+                      Center(
+                        child: Material(
+                          color: _theme.draggableCircleColor,
+                          shape: const StadiumBorder(),
+                          elevation: 5.0,
+                          child: SizedBox(width: widget.direction == Axis.horizontal ? widget.wide : double.infinity,
+                            height: widget.direction == Axis.horizontal ? double.infinity : widget.wide,
+                            child: Center(
+                              child: Stack(
+                                children: [
+                                  AnimatedSwitcher(
+                                    duration: const Duration(milliseconds: 400),
+                                    transitionBuilder: (Widget child,
+                                        Animation<double> animation) {
+                                      return ScaleTransition(
+                                          child: child, scale: animation);
+                                    },
+                                    child: InkWell(
+                                      onTap: () {
+                                        if (widget.withDialog &&
+                                            !widget.dialogShowOnlyLongTouch) {
+                                          showTitleDialog();
+                                        }
+                                      },
+                                      onLongPress: () {
+                                        if (widget.withDialog) {
+                                          showTitleDialog();
+                                        }
+                                        // Navigator.push(context, new MaterialPageRoute(
+                                        //   builder: (BuildContext context) => _myDialog,
+                                        //   fullscreenDialog: true,
+                                        // ));
+                                      },
+                                      child: Text(
+                                        isInt
+                                            ? _value.round().toString()
+                                            : _value.toStringAsFixed(cntDP),
+                                        key: ValueKey<double>(_value),
+                                        style: TextStyle(
+                                            color: _theme.numberColor,
+                                            fontSize: 70.0 -
+                                                ((_value
+                                                            .toStringAsFixed(cntDP)
+                                                            .length -
+                                                        1) *
+                                                    7)),
+                                      ),
+                                    ),
                                   ),
-                                ),
+                                ],
                               ),
-                            ],
+                            ),
                           ),
                         ),
                       ),
