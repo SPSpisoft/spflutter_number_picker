@@ -95,7 +95,7 @@ class NumberPicker extends StatefulWidget {
   final double expanse;
   final int durationAutoPick;
 
-  final double? wide = 180;
+  final double? wide = 120;
 
   /// Theme of the [NumberSelection] widget:
   ///
