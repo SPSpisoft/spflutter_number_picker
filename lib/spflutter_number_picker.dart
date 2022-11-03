@@ -786,7 +786,7 @@ class _NumberPickerState extends State<NumberPicker>
                               mVal = widget.maxValue;
                             }
 
-                            if (widget.minValue > 1 &&
+                            if (widget.minValue != 1 &&
                                 mVal < widget.minValue) {
                               mVal = widget.minValue;
                             }
@@ -836,7 +836,10 @@ class _NumberPickerState extends State<NumberPicker>
                           } else {
                             if (widget.maxValue >= 0 &&
                                 double.parse(value) > widget.maxValue) {
-                              return '   out of range (${widget.maxValue.toString()} )';
+                              return '   out of range > (${widget.maxValue.toString()} )';
+                            }
+                            if (double.parse(value) < widget.minValue) {
+                              return '   out of range < (${widget.minValue.toString()} )';
                             }
                           }
                           return null;
