@@ -203,6 +203,12 @@ class _NumberPickerState extends State<NumberPicker>
     _backgroundColorTween
       ..begin = _theme.backgroundColor
       ..end = _theme.outOfConstraintsColor;
+
+    if (widget.resetValue != null) {
+      _value = widget.resetValue!;
+      widget.resetValue = null;
+    }
+
     super.didUpdateWidget(oldWidget);
   }
 

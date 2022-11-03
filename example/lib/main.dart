@@ -29,6 +29,10 @@ class _MyAppState extends State<MyApp> {
 
   double? _resetValue;
 
+  double? XX;
+
+  late NumberPicker np;
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -62,7 +66,13 @@ class _MyAppState extends State<MyApp> {
                   maxValue: 10.2,
                   direction: Axis.vertical,
                   withSpring: true,
-                  onChanged: (double value) => print("value: $value"),
+                  onChanged: (double value) {
+                    XX = 23;
+                    setState(() {
+
+                    });
+                    print("value: $value");
+                  },
                   enableOnOutOfConstraintsAnimation: true,
                   onOutOfConstraints: () =>
                       print("This value is too high or too low"),
@@ -73,7 +83,7 @@ class _MyAppState extends State<MyApp> {
                     child: SizedBox(
                       height: 50,
                       width: 400,
-                      child: NumberPicker(
+                      child: np = NumberPicker(
                         theme: NumberSelectionTheme(
                             draggableCircleColor: Colors.blue,
                             iconsColor: Colors.white,
@@ -82,10 +92,11 @@ class _MyAppState extends State<MyApp> {
                             progressColor: Colors.deepOrangeAccent,
                             backgroundColor: Colors.deepPurpleAccent,
                             outOfConstraintsColor: Colors.deepOrange),
-                        interval: 0.3,
+                        interval: 1,
                         minValue: 5,
                         maxValue: 30,
-                        initialValue: 0,
+                        resetValue: XX,
+                        initialValue: 10,
                         iconRemove: Icons.remove,
                         iconMin: Icons.delete,
                         iconMax: Icons.fullscreen_exit,
