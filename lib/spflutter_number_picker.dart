@@ -9,7 +9,7 @@ class NumberPicker extends StatefulWidget {
   NumberPicker(
       {Key? key,
       this.valueController,
-        this.resetValue,
+      this.resetValue,
       this.initialValue = 0,
       this.onChanged,
       this.callBack,
@@ -38,18 +38,20 @@ class NumberPicker extends StatefulWidget {
       : super(key: key);
 
   TextEditingController? valueController = TextEditingController();
+
   /// the orientation of the stepper its horizontal or vertical.
   final Axis direction;
 
   /// the initial value of the stepper
-  late  double initialValue;
-  late  double interval;
+  late double initialValue;
+  late double interval;
   late double? resetValue;
   final bool intCheck;
   final bool withDialog;
   final bool dialogShowOnlyLongTouch;
-  late  Future<double> Function(double newValue)? callBack;
+  late Future<double> Function(double newValue)? callBack;
   final Future<NumberPicker> Function(double newValue)? callOnSet;
+
   // final Future<bool adding, double jumpVal, double minVal, double maxVal> Function()? callBackOnSet;
   // final Function(NumberPicker numberPicker)? callOnSet;
   final IconData? iconEmpty;
@@ -129,6 +131,7 @@ class _NumberPickerState extends State<NumberPicker>
               begin: const Offset(0.0, 0.0), end: const Offset(0.0, 1.5))
           .animate(_controller);
   late double _value = 0;
+
   // widget.initialValue < widget.minValue ? widget.minValue : widget.initialValue;
 
   double startPosition = 1;
@@ -139,14 +142,13 @@ class _NumberPickerState extends State<NumberPicker>
   late double _startAnimationOutOfConstraintsPosX = startPosition * -1;
   late double _startAnimationOutOfConstraintsPosY = startPosition * -1;
 
-  late AnimationController _backgroundColorController =
-      AnimationController(
-          vsync: this, duration: const Duration(milliseconds: 350), value: 0)
-        ..addStatusListener((status) {
-          if (status == AnimationStatus.completed) {
-            _backgroundColorController.animateTo(0, curve: Curves.easeIn);
-          }
-        });
+  late AnimationController _backgroundColorController = AnimationController(
+      vsync: this, duration: const Duration(milliseconds: 350), value: 0)
+    ..addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        _backgroundColorController.animateTo(0, curve: Curves.easeIn);
+      }
+    });
 
   final ColorTween _backgroundColorTween = ColorTween();
   late final Animation<Color?> _backgroundColor =
@@ -167,9 +169,7 @@ class _NumberPickerState extends State<NumberPicker>
 
   @override
   void initState() {
-
-    _backgroundColorController =
-    AnimationController(
+    _backgroundColorController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 350), value: 0)
       ..addStatusListener((status) {
         if (status == AnimationStatus.completed) {
@@ -177,7 +177,10 @@ class _NumberPickerState extends State<NumberPicker>
         }
       });
 
-    widget.initialValue = widget.initialValue > 0 && widget.initialValue < widget.minValue ? widget.minValue : widget.initialValue;
+    widget.initialValue =
+        widget.initialValue > 0 && widget.initialValue < widget.minValue
+            ? widget.minValue
+            : widget.initialValue;
     _value = widget.initialValue;
 
     checkValueType();
@@ -243,7 +246,7 @@ class _NumberPickerState extends State<NumberPicker>
 
   @override
   Widget build(BuildContext context) {
-    if(widget.resetValue != null){
+    if (widget.resetValue != null) {
       _value = widget.resetValue!;
       widget.resetValue = null;
     }
@@ -477,7 +480,6 @@ class _NumberPickerState extends State<NumberPicker>
 
     bool valueOutOfConstraints = false;
     while (_buttonTouch) {
-
       valueOutOfConstraints = setValue(adding);
 
       if (widget.withSpring) {
@@ -580,7 +582,7 @@ class _NumberPickerState extends State<NumberPicker>
           }
         }
       } else {
-          valueOutOfConstraints = setValue(adding);
+        valueOutOfConstraints = setValue(adding);
       }
 
       if (widget.withSpring) {
@@ -764,7 +766,13 @@ class _NumberPickerState extends State<NumberPicker>
                                 valueChange(widget.maxValue);
                                 // _value = widget.maxValue;
                               } else {
-                                valueChange(mVal);
+                                if (widget.minValue > 1 &&
+                                    mVal < widget.minValue) {
+                                  valueChange(widget.minValue);
+                                  // _value = widget.maxValue;
+                                } else {
+                                  valueChange(mVal);
+                                }
                                 // _value = double.parse(val);
                               }
                               setState(() {});
@@ -776,6 +784,11 @@ class _NumberPickerState extends State<NumberPicker>
                             if (widget.maxValue >= 0 &&
                                 mVal > widget.maxValue) {
                               mVal = widget.maxValue;
+                            }
+
+                            if (widget.minValue > 1 &&
+                                mVal < widget.minValue) {
+                              mVal = widget.minValue;
                             }
 
                             var vD = mVal % widget.interval;
@@ -839,24 +852,22 @@ class _NumberPickerState extends State<NumberPicker>
   }
 
   void valueChange(double mValue) {
-
     if (widget.callOnSet != null) {
       setState(() => visibleProgress = true);
       widget.callOnSet!(mValue).then((myNumberPicker) => {
-        mValue = mValue - widget.interval + myNumberPicker.interval,
-        widget.maxValue = myNumberPicker.maxValue,
-        widget.minValue = myNumberPicker.minValue,
-        widget.interval = myNumberPicker.interval,
-        widget.initialValue = myNumberPicker.initialValue,
-        widget.callBack = myNumberPicker.callBack,
-        checkValueType(),
-        setState(() {
-          runCallBack(mValue);
-        }),
-      });
+            mValue = mValue - widget.interval + myNumberPicker.interval,
+            widget.maxValue = myNumberPicker.maxValue,
+            widget.minValue = myNumberPicker.minValue,
+            widget.interval = myNumberPicker.interval,
+            widget.initialValue = myNumberPicker.initialValue,
+            widget.callBack = myNumberPicker.callBack,
+            checkValueType(),
+            setState(() {
+              runCallBack(mValue);
+            }),
+          });
       // setState(() {});
-    }
-    else if (widget.callBack != null) {
+    } else if (widget.callBack != null) {
       runCallBack(mValue);
     } else {
       setState(() => _value = mValue);
@@ -865,44 +876,44 @@ class _NumberPickerState extends State<NumberPicker>
 
   void runCallBack(double mValue) {
     setState(() => visibleProgress = true);
-    if(widget.callBack != null) {
+    if (widget.callBack != null) {
       double mt;
-      widget.callBack!(mValue).then((ret) =>
-      {
-        if (ret < 0)
-          {
-            visibleProgress = false,
-            if (widget.onOutOfConstraints != null)
-              widget.onOutOfConstraints!(),
-            if (widget.enableOnOutOfConstraintsAnimation)
-              _backgroundColorController.forward(),
-            setState(() {}),
-            // setState(() {
-            // })
-          }
-        else
-          {
-            visibleProgress = false,
-            mt = ret % widget.interval,
-            if (mt != 0 &&
-                double.parse((mt).toStringAsFixed(cntDP)) != widget.interval)
+      widget.callBack!(mValue).then((ret) => {
+            if (ret < 0)
               {
+                visibleProgress = false,
                 if (widget.onOutOfConstraints != null)
-                  {
-                    widget.onOutOfConstraints!(),
-                  },
+                  widget.onOutOfConstraints!(),
                 if (widget.enableOnOutOfConstraintsAnimation)
+                  _backgroundColorController.forward(),
+                setState(() {}),
+                // setState(() {
+                // })
+              }
+            else
+              {
+                visibleProgress = false,
+                mt = ret % widget.interval,
+                if (mt != 0 &&
+                    double.parse((mt).toStringAsFixed(cntDP)) !=
+                        widget.interval)
                   {
-                    _backgroundColorController.forward(),
+                    if (widget.onOutOfConstraints != null)
+                      {
+                        widget.onOutOfConstraints!(),
+                      },
+                    if (widget.enableOnOutOfConstraintsAnimation)
+                      {
+                        _backgroundColorController.forward(),
+                      },
+                    ret = ret - (ret % widget.interval),
                   },
-                ret = ret - (ret % widget.interval),
-              },
-            _value = ret,
-            setState(() {}),
-            // setState(() {
-            // })
-          }
-      });
+                _value = ret,
+                setState(() {}),
+                // setState(() {
+                // })
+              }
+          });
     }
     setState(() {});
   }
@@ -910,8 +921,9 @@ class _NumberPickerState extends State<NumberPicker>
   bool setValue(bool adding) {
     bool valueOutOfConstraints = false;
 
-    if (adding && ((_value + widget.interval <= widget.maxValue || widget.maxValue < 0)
-        || (_value == 0 && widget.initialValue < widget.maxValue))) {
+    if (adding &&
+        ((_value + widget.interval <= widget.maxValue || widget.maxValue < 0) ||
+            (_value == 0 && widget.initialValue < widget.maxValue))) {
       valueChange(_value == 0 ? widget.minValue : _value + widget.interval);
       // setState(() => _value = _value + widget.interval);
     } else if (!adding && _value > 0) {
