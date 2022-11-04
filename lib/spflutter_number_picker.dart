@@ -29,6 +29,7 @@ class NumberPicker extends StatefulWidget {
       this.iconAdd = Icons.add,
       this.iconMin,
       this.iconMax,
+      this.wide = 120,
       this.iconAddSize = 60,
       this.iconRemoveSize = 60,
       this.dialogShowOnlyLongTouch = false,
@@ -95,7 +96,7 @@ class NumberPicker extends StatefulWidget {
   final double expanse;
   final int durationAutoPick;
 
-  final double? wide = 120;
+  final double? wide;
 
   /// Theme of the [NumberSelection] widget:
   ///
