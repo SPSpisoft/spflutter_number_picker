@@ -539,7 +539,7 @@ class _NumberPickerState extends State<NumberPicker>
           _backgroundColorController.forward();
         }
       } else if (widget.onChanged != null) {
-        widget.onChanged!(_value);
+        // widget.onChanged!(_value);
       }
       // print("SPS 2.3");
       // _buttonTouch = false;
@@ -670,7 +670,7 @@ class _NumberPickerState extends State<NumberPicker>
           _backgroundColorController.forward(from: -10);
         }
       } else if (widget.onChanged != null) {
-        widget.onChanged!(_value);
+        // widget.onChanged!(_value);
       }
 
       if (valueOutOfConstraints) {
@@ -679,7 +679,7 @@ class _NumberPickerState extends State<NumberPicker>
           _backgroundColorController.forward();
         }
       } else if (widget.onChanged != null) {
-        widget.onChanged!(_value);
+        // widget.onChanged!(_value);
       }
     }
   }

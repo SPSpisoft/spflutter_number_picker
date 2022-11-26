@@ -119,7 +119,7 @@ class _MyAppState extends State<MyApp> {
                         direction: Axis.horizontal,
                         withSpring: true,
                         onChanged: (double value) {
-                          print("value: $value");
+                          print(">>value: $value");
                         },
                         dialogShowOnlyLongTouch: false,
                         enableOnOutOfConstraintsAnimation: true,
