@@ -576,7 +576,9 @@ class _NumberPickerState extends State<NumberPicker>
         if (adding) {
           if (_value + (widget.interval * 10) <= widget.maxValue ||
               widget.maxValue < 0) {
-            valueChange(_value + (widget.interval * 10));
+            double newVal = _value + (widget.interval * 10);
+            if(newVal < widget.minValue) newVal = widget.minValue;
+            valueChange(newVal);
             // setState(() => _value = _value + (widget.interval * 10));
             valuation = true;
           } else {
